@@ -14,6 +14,10 @@ export default function RegisterScreen() {
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
 
+    const handleRegister = () => {
+        router.push('/(auth)/welcome' as any);
+    };
+
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -58,12 +62,12 @@ export default function RegisterScreen() {
                             />
                         </View>
                         <Typography variant="caption" color={colors.textSecondary} style={{ flex: 1 }}>
-                            Tôi đồng ý với <Typography variant="caption" color={colors.primary}>Điều khoản sử dụng</Typography> và <Typography variant="caption" color={colors.primary}>Chính sách bảo mật</Typography> của hệ thống.
+                            Tôi đồng ý với <Typography variant="caption" color={colors.primary}>Điều khoản sử dụng</Typography> và <Typography variant="caption" color={colors.primary}>Chính sách bảo mật</Typography> của hệ thống
                         </Typography>
                     </TouchableOpacity>
 
                     <View style={styles.actionContainer}>
-                        <ButtonCTA title="Đăng ký" onPress={() => { }} disabled={!agreeTerms} />
+                        <ButtonCTA title="Đăng ký" onPress={handleRegister} disabled={!agreeTerms} />
 
                         <View style={styles.dividerContainer}>
                             <View style={[styles.divider, { backgroundColor: colors.disabled }]} />
