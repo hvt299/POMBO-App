@@ -16,6 +16,7 @@ export const Colors = {
         warning: '#F59E0B',
         danger: '#EF4444',
         disabled: '#CBD5E1',
+        rankMaster: '#EC4899',
 
         // Text
         textPrimary: '#0F172A',
@@ -42,6 +43,7 @@ export const Colors = {
         warning: '#F59E0B',
         danger: '#EF4444',
         disabled: '#475569',
+        rankMaster: '#EC4899',
 
         textPrimary: '#F8FAFC',
         textSecondary: '#94A3B8',
