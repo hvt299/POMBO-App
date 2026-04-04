@@ -6,6 +6,7 @@ import { Icon } from '@/components/ui/Icon';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAuthStore } from '@/store/useAuthStore';
 
 export default function SettingsScreen() {
     const router = useRouter();
@@ -122,7 +123,7 @@ export default function SettingsScreen() {
                             color={colors.danger}
                             isLast
                             onPress={() => {
-                                router.replace('/(auth)/login' as any);
+                                useAuthStore.getState().logout();
                             }}
                         />
                     </View>

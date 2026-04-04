@@ -105,7 +105,7 @@ export default function StudyScreen() {
                     <StudyCard
                         title="Bảng chữ cái phiên âm"
                         description="Nếu chưa biết phát âm thế nào cho chuẩn? Vào đây ngay !!!"
-                        borderColor="#EC4899"
+                        borderColor={colors.rankMaster}
                         onPress={() => router.push('/alphabet')}
                         iconName="Mic"
                     />
