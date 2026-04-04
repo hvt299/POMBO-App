@@ -116,7 +116,8 @@ export default function GetStarted() {
                                 styles.dot,
                                 {
                                     backgroundColor: currentIndex === index ? colors.primary : colors.disabled,
-                                    width: currentIndex === index ? 24 : 8
+                                    width: currentIndex === index ? 24 : 8,
+                                    opacity: currentIndex === index ? 1 : 0.7,
                                 }
                             ]}
                         />
