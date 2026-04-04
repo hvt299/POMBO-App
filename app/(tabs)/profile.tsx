@@ -83,7 +83,7 @@ export default function ProfileScreen() {
                 <Typography variant="h2" color={colors.textPrimary} style={styles.headerTitle}>
                     Hồ sơ của tôi
                 </Typography>
-                <TouchableOpacity onPress={() => router.push('/settings')} style={styles.settingsBtn}>
+                <TouchableOpacity onPress={() => router.push('/settings' as any)} style={styles.settingsBtn}>
                     <Icon name="Settings" size={24} color={colors.textPrimary} />
                 </TouchableOpacity>
             </View>
@@ -160,7 +160,6 @@ export default function ProfileScreen() {
                         Cấp độ ghi nhớ (SRS)
                     </Typography>
 
-                    {/* Đã xóa dòng "Cấp 5 là ngủ đông" */}
                     <Typography variant="tiny" color={colors.textSecondary} style={{ marginBottom: 32, lineHeight: 18 }}>
                         Đúng tiến 1 bước (Tối đa 5). Sai lùi 1 bước (Tối thiểu 1). Cấp 5 là mức độ ghi nhớ cao nhất.
                     </Typography>
