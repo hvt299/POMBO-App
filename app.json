@@ -41,7 +41,8 @@
             "./src/assets/fonts/Baloo-2/Baloo2-ExtraBold.ttf"
           ]
         }
-      ]
+      ],
+      "expo-audio"
     ],
     "experiments": {
       "typedRoutes": true

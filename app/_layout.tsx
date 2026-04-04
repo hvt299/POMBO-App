@@ -37,14 +37,15 @@ export default function RootLayout() {
         if (isFirstLaunch === null || !loaded) return;
 
         const inAuthGroup = segments[0] === '(auth)';
-        const inTabsGroup = segments[0] === '(tabs)';
 
         if (isFirstLaunch) {
             router.replace('/get-started' as any);
         } else if (!isAuthenticated) {
             if (!inAuthGroup) router.replace('/(auth)/login');
         } else if (isAuthenticated) {
-            if (!inTabsGroup) router.replace('/(tabs)');
+            if (inAuthGroup || !segments[0]) {
+                router.replace('/(tabs)');
+            }
         }
     }, [isFirstLaunch, isAuthenticated, segments, loaded]);
 
