@@ -154,13 +154,12 @@ export default function ProfileScreen() {
                     </View>
                 </View>
 
-                {/* --- SECTION 2: SRS CHART --- */}
                 <View style={[styles.chartCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                     <Typography variant="h3" color={colors.textPrimary} style={styles.sectionTitle}>
                         Cấp độ ghi nhớ (SRS)
                     </Typography>
 
-                    <Typography variant="tiny" color={colors.textSecondary} style={{ marginBottom: 32, lineHeight: 18 }}>
+                    <Typography variant="tiny" color={colors.textSecondary} style={{ marginBottom: 12, lineHeight: 18 }}>
                         Đúng tiến 1 bước (Tối đa 5). Sai lùi 1 bước (Tối thiểu 1). Cấp 5 là mức độ ghi nhớ cao nhất.
                     </Typography>
 
@@ -198,7 +197,7 @@ export default function ProfileScreen() {
                 <View style={[styles.menuContainer, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                     <MenuItem icon="History" title="Lịch sử học tập" onPress={() => { }} />
                     <MenuItem icon="BarChart2" title="Thống kê chi tiết" onPress={() => { }} />
-                    <MenuItem icon="Trophy" title="Thành tựu" onPress={() => { }} />
+                    <MenuItem icon="Trophy" title="Thành tựu" onPress={() => router.push('/achievements')} />
                     <MenuItem icon="Users" title="Danh sách bạn bè" onPress={() => router.push('/friends-list')} hideBorder />
                 </View>
 
