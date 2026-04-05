@@ -19,20 +19,7 @@ export default function StudyScreen() {
 
     return (
         <View style={{ flex: 1, backgroundColor: colors.background }}>
-            <ScrollView
-                style={{
-                    marginBottom: 90 + insets.bottom,
-                }}
-                contentContainerStyle={[
-                    styles.scrollContent,
-                    {
-                        paddingTop: Math.max(insets.top, 20),
-                        paddingBottom: 20,
-                    }
-                ]}
-                showsVerticalScrollIndicator={false}
-                keyboardShouldPersistTaps="handled"
-            >
+            <View style={{ paddingTop: Math.max(insets.top, 20), paddingHorizontal: 20, backgroundColor: colors.background, zIndex: 10 }}>
                 {/* 1. Khu vực Lời chào */}
                 <View style={styles.greetingContainer}>
                     <View>
@@ -65,7 +52,22 @@ export default function StudyScreen() {
                         <Icon name="SlidersHorizontal" size={22} color={colors.surface} />
                     </TouchableOpacity>
                 </View>
+            </View>
 
+            <ScrollView
+                style={{
+                    marginBottom: 90 + insets.bottom,
+                }}
+                contentContainerStyle={[
+                    styles.scrollContent,
+                    {
+                        paddingTop: 10,
+                        paddingBottom: 20,
+                    }
+                ]}
+                showsVerticalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
+            >
                 {/* 2. Section: Tin nổi bật */}
                 <View style={styles.section}>
                     <View style={styles.sectionHeader}>
@@ -88,7 +90,6 @@ export default function StudyScreen() {
                         title="Ôn tập"
                         description="Cốc cốc cốc! Đến giờ ôn tập để lưu giữ từ vựng tốt hơn rồi"
                         borderColor={colors.primary}
-                        // onPress={() => { }}
                         onPress={() => router.push('/review')}
                         iconName="RefreshCw"
                     />
@@ -104,14 +105,14 @@ export default function StudyScreen() {
                     <StudyCard
                         title="Bảng chữ cái phiên âm"
                         description="Nếu chưa biết phát âm thế nào cho chuẩn? Vào đây ngay !!!"
-                        borderColor="#EC4899"
+                        borderColor={colors.rankMaster}
                         onPress={() => router.push('/alphabet')}
                         iconName="Mic"
                     />
 
                     <StudyCard
                         title="Khóa học"
-                        description="Bạn đang muốn có một lộ trình rõ ràng, nhanh chóng, hãy tham khảo thử tại đây."
+                        description="Bạn đang muốn có một lộ trình rõ ràng, nhanh chóng, hãy tham khảo thử tại đây"
                         borderColor={colors.warning}
                         onPress={() => { }}
                         iconName="GraduationCap"
@@ -149,7 +150,6 @@ const styles = StyleSheet.create({
         borderRadius: 4,
         backgroundColor: '#EF4444',
         borderWidth: 1.5,
-        borderColor: '#FFFFFF',
     },
 
     searchContainer: {

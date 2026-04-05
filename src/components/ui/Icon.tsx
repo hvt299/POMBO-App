@@ -9,18 +9,31 @@ interface IconProps {
     name: IconName;
     size?: number;
     color?: string;
+    fill?: string;
+    strokeWidth?: number;
 }
 
-export const Icon = ({ name, size = 24, color }: IconProps) => {
+export const Icon = ({
+    name,
+    size = 24,
+    color,
+    fill = 'none',
+    strokeWidth = 2,
+}: IconProps) => {
     const IconComponent = LucideIcons[name] as React.ElementType;
 
     const colorScheme = useColorScheme() ?? 'light';
-
+    
     const defaultColor = color || Colors[colorScheme].textPrimary;
 
-    if (!IconComponent) {
-        return null;
-    }
+    if (!IconComponent) return null;
 
-    return <IconComponent color={defaultColor} size={size} />;
+    return (
+        <IconComponent
+            color={defaultColor}
+            size={size}
+            fill={fill}
+            strokeWidth={strokeWidth}
+        />
+    );
 };
