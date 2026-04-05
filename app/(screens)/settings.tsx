@@ -62,7 +62,7 @@ export default function SettingsScreen() {
     );
 
     return (
-        <View style={{ flex: 1, backgroundColor: colors.background }}>
+        <View style={{ flex: 1, backgroundColor: colors.background, paddingBottom: insets.bottom }}>
             {/* --- HEADER --- */}
             <View style={[styles.header, { paddingTop: Math.max(insets.top, 20) }]}>
                 <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
@@ -76,14 +76,14 @@ export default function SettingsScreen() {
 
             {/* --- CONTENT --- */}
             <ScrollView
-                contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 60 }]}
+                contentContainerStyle={[styles.scrollContent, { paddingBottom: 40 }]}
                 showsVerticalScrollIndicator={false}
             >
                 {/* Nhóm 1: Tài khoản */}
                 <SettingGroup title="Tài khoản">
-                    <SettingItem icon="User" title="Thông tin cá nhân" color={colors.textPrimary} onPress={() => { }} />
+                    <SettingItem icon="User" title="Thông tin cá nhân" color={colors.textPrimary} onPress={() => router.push('/personal-info')} />
                     <SettingItem icon="ShoppingBag" title="Lịch sử mua hàng" color={colors.textPrimary} onPress={() => { }} />
-                    <SettingItem icon="Lock" title="Đổi mật khẩu" color={colors.textPrimary} isLast onPress={() => { }} />
+                    <SettingItem icon="Lock" title="Đổi mật khẩu" color={colors.textPrimary} isLast onPress={() => router.push('/change-password')} />
                 </SettingGroup>
 
                 {/* Nhóm 2: Hệ thống & Tùy chỉnh */}

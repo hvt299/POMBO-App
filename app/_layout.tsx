@@ -65,6 +65,7 @@ export default function RootLayout() {
             <Stack.Screen name="get-started" />
             <Stack.Screen name="(auth)" />
             <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="(screens)" />
         </Stack>
     );
 }

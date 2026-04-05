@@ -92,7 +92,6 @@ export default function ReviewScreen() {
             return { borderColor: colors.border, borderWidth: 1, badgeBg: colors.surfaceGreen || '#D1FAE5', badgeText: colors.primary, textCol: colors.textPrimary };
         }
 
-        // isSubmitted
         const isThisCorrect = optionId === question.correctAnswerId;
         const isThisSelected = optionId === selectedOption;
 
