@@ -109,7 +109,7 @@ export default function SettingsScreen() {
 
                 {/* Nhóm 3: Khác */}
                 <SettingGroup title="Khác">
-                    <SettingItem icon="UserPlus" title="Mời bạn bè" color={colors.textPrimary} onPress={() => { }} />
+                    <SettingItem icon="UserPlus" title="Mời bạn bè" color={colors.textPrimary} onPress={() => router.push('/invite-friends')} />
                     <SettingItem icon="LifeBuoy" title="Hỗ trợ & Trợ giúp" color={colors.textPrimary} isLast onPress={() => { }} />
                 </SettingGroup>
 
