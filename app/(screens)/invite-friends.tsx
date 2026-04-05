@@ -3,6 +3,7 @@ import { View, StyleSheet, ScrollView, TouchableOpacity, Share, Alert, Image } f
 import { useRouter } from 'expo-router';
 import { Typography } from '@/components/ui/Typography';
 import { Icon } from '@/components/ui/Icon';
+import { Toast } from '@/components/ui/Toast';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -28,14 +29,14 @@ export default function InviteFriendsScreen() {
     const insets = useSafeAreaInsets();
 
     const [invitedCount, setInvitedCount] = useState(2);
-    const [showToast, setShowToast] = useState(false);
+    const [toastConfig, setToastConfig] = useState({ visible: false, message: '', icon: 'Check' });
     const referralCode = "MRT-2026";
-    const shareMessage = `Học tiếng Anh cực vui cùng mình! Nhập mã ${referralCode} để cả 2 cùng nhận quà nhé. Tải app tại: https://yourapp.com/invite/${referralCode}`;
+    const shareMessage = `Học tiếng Anh cực vui cùng mình! Nhập mã ${referralCode} để cả 2 cùng nhận quà nhé. Tải app tại: https://pombo.com/invite/${referralCode}`;
 
     const handleCopy = async () => {
         await Clipboard.setStringAsync(shareMessage);
-        setShowToast(true);
-        setTimeout(() => setShowToast(false), 2000);
+        setToastConfig({ visible: true, message: 'Đã sao chép mã giới thiệu', icon: 'Check' });
+        setTimeout(() => setToastConfig(prev => ({ ...prev, visible: false })), 2000);
     };
 
     const onShare = async () => {
@@ -192,15 +193,11 @@ export default function InviteFriendsScreen() {
                 <View style={{ height: 40 }} />
             </ScrollView>
 
-            {/* --- TOAST THÔNG BÁO --- */}
-            {showToast && (
-                <View style={[styles.toast, { backgroundColor: colors.textPrimary }]}>
-                    <Icon name="Check" size={16} color={colors.background} />
-                    <Typography variant="bodySmall" style={{ color: colors.background, marginLeft: 8 }}>
-                        Đã sao chép mã giới thiệu
-                    </Typography>
-                </View>
-            )}
+            <Toast
+                visible={toastConfig.visible}
+                message={toastConfig.message}
+                icon={toastConfig.icon}
+            />
         </View>
     );
 }
@@ -232,6 +229,4 @@ const styles = StyleSheet.create({
     friendItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, borderBottomWidth: 1 },
     friendAvatar: { width: 40, height: 40, borderRadius: 20, marginRight: 12, backgroundColor: '#E2E8F0' },
     successBadge: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 12 },
-
-    toast: { position: 'absolute', bottom: 100, alignSelf: 'center', flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, borderRadius: 24, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 4, elevation: 5 },
 });

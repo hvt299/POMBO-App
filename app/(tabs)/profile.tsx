@@ -83,7 +83,7 @@ export default function ProfileScreen() {
                 <Typography variant="h2" color={colors.textPrimary} style={styles.headerTitle}>
                     Hồ sơ của tôi
                 </Typography>
-                <TouchableOpacity onPress={() => router.push('/settings' as any)} style={styles.settingsBtn}>
+                <TouchableOpacity onPress={() => router.push('/settings')} style={styles.settingsBtn}>
                     <Icon name="Settings" size={24} color={colors.textPrimary} />
                 </TouchableOpacity>
             </View>
@@ -199,7 +199,7 @@ export default function ProfileScreen() {
                     <MenuItem icon="History" title="Lịch sử học tập" onPress={() => { }} />
                     <MenuItem icon="BarChart2" title="Thống kê chi tiết" onPress={() => { }} />
                     <MenuItem icon="Trophy" title="Thành tựu" onPress={() => { }} />
-                    <MenuItem icon="Users" title="Danh sách bạn bè" onPress={() => { }} hideBorder />
+                    <MenuItem icon="Users" title="Danh sách bạn bè" onPress={() => router.push('/friends-list')} hideBorder />
                 </View>
 
             </ScrollView>
