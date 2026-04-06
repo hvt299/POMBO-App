@@ -90,7 +90,8 @@ export default function StudyScreen() {
                         title="Ôn tập"
                         description="Cốc cốc cốc! Đến giờ ôn tập để lưu giữ từ vựng tốt hơn rồi"
                         borderColor={colors.primary}
-                        onPress={() => router.push('/review')}
+                        // onPress={() => router.push('/review')}
+                        onPress={() => router.push('/dashboard')}
                         iconName="RefreshCw"
                     />
 
