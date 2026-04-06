@@ -39,7 +39,7 @@ export default function RootLayout() {
         const inAuthGroup = segments[0] === '(auth)';
 
         if (isFirstLaunch) {
-            router.replace('/get-started' as any);
+            router.replace('/get-started');
         } else if (!isAuthenticated) {
             if (!inAuthGroup) router.replace('/(auth)/login');
         } else if (isAuthenticated) {
@@ -65,6 +65,7 @@ export default function RootLayout() {
             <Stack.Screen name="get-started" />
             <Stack.Screen name="(auth)" />
             <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="(screens)" />
         </Stack>
     );
 }
