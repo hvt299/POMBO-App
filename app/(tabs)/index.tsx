@@ -99,7 +99,7 @@ export default function StudyScreen() {
                         title="Sổ tay"
                         description="Từ vựng đã học sẽ được cất giữ tại nơi này"
                         borderColor={colors.secondary}
-                        onPress={() => { }}
+                        onPress={() => router.push('/notebook')}
                         iconName="BookOpen"
                     />
 
