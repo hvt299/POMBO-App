@@ -115,7 +115,7 @@ export default function StudyScreen() {
                         title="Khóa học"
                         description="Bạn đang muốn có một lộ trình rõ ràng, nhanh chóng, hãy tham khảo thử tại đây"
                         borderColor={colors.warning}
-                        onPress={() => { }}
+                        onPress={() => { router.push('/my-courses') }}
                         iconName="GraduationCap"
                     />
                 </View>
