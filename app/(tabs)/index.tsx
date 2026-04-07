@@ -90,7 +90,8 @@ export default function StudyScreen() {
                         title="Ôn tập"
                         description="Cốc cốc cốc! Đến giờ ôn tập để lưu giữ từ vựng tốt hơn rồi"
                         borderColor={colors.primary}
-                        onPress={() => router.push('/review')}
+                        // onPress={() => router.push('/review')}
+                        onPress={() => router.push('/dashboard')}
                         iconName="RefreshCw"
                     />
 
@@ -114,7 +115,7 @@ export default function StudyScreen() {
                         title="Khóa học"
                         description="Bạn đang muốn có một lộ trình rõ ràng, nhanh chóng, hãy tham khảo thử tại đây"
                         borderColor={colors.warning}
-                        onPress={() => { }}
+                        onPress={() => { router.push('/my-courses') }}
                         iconName="GraduationCap"
                     />
                 </View>

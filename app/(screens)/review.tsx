@@ -63,6 +63,10 @@ export default function ReviewScreen() {
     const [currentIdx, setCurrentIdx] = useState(0);
     const [selectedOption, setSelectedOption] = useState<string | null>(null);
     const [isSubmitted, setIsSubmitted] = useState(false);
+    
+    // Thêm state quản lý hoàn thành và điểm số
+    const [isFinished, setIsFinished] = useState(false);
+    const [score, setScore] = useState(0);
 
     const question = MOCK_QUESTIONS[currentIdx];
     const totalQuestions = MOCK_QUESTIONS.length;
@@ -71,7 +75,13 @@ export default function ReviewScreen() {
     const isCorrect = selectedOption === question?.correctAnswerId;
 
     const handleSubmit = () => {
-        if (selectedOption) setIsSubmitted(true);
+        if (selectedOption) {
+            setIsSubmitted(true);
+            // Cộng điểm nếu trả lời đúng
+            if (isCorrect) {
+                setScore(prev => prev + 5);
+            }
+        }
     };
 
     const handleNext = () => {
@@ -80,7 +90,8 @@ export default function ReviewScreen() {
             setSelectedOption(null);
             setIsSubmitted(false);
         } else {
-            router.back();
+            // Hiển thị màn hình hoàn thành thay vì thoát ngay
+            setIsFinished(true);
         }
     };
 
@@ -89,7 +100,7 @@ export default function ReviewScreen() {
         
         if (!isSubmitted) {
             if (isSelected) return { borderColor: colors.primary, borderWidth: 2, badgeBg: colors.primary, badgeText: colors.textOnAction, textCol: colors.textPrimary };
-            return { borderColor: colors.border, borderWidth: 1, badgeBg: colors.surfaceGreen || '#D1FAE5', badgeText: colors.primary, textCol: colors.textPrimary };
+            return { borderColor: colors.border, borderWidth: 1, badgeBg: colors.surfaceGreen, badgeText: colors.primary, textCol: colors.textPrimary };
         }
 
         const isThisCorrect = optionId === question.correctAnswerId;
@@ -99,12 +110,51 @@ export default function ReviewScreen() {
             return { borderColor: colors.primary, borderWidth: 2, badgeBg: colors.primary, badgeText: colors.textOnAction, textCol: colors.primary };
         }
         if (isThisSelected && !isThisCorrect) {
-            return { borderColor: colors.danger, borderWidth: 2, badgeBg: colors.surfacePink || '#FCE7F3', badgeText: colors.danger, textCol: colors.danger };
+            return { borderColor: colors.danger, borderWidth: 2, badgeBg: colors.surfacePink, badgeText: colors.danger, textCol: colors.danger };
         }
 
         return { borderColor: colors.border, borderWidth: 1, badgeBg: colors.disabled, badgeText: colors.textSecondary, textCol: colors.textSecondary };
     };
 
+    // --- GIAO DIỆN HOÀN THÀNH ---
+    if (isFinished) {
+        return (
+            <View style={[styles.completionContainer, { backgroundColor: colors.background, paddingTop: Math.max(insets.top, 20) }]}>
+                <View style={styles.completionContent}>
+                    <View style={[styles.trophyBadge, { backgroundColor: colors.surfaceGreen }]}>
+                        {/* Có thể thay 'Star' bằng 'Award' hoặc icon phù hợp trong thư viện của bạn */}
+                        <Icon name="Star" size={64} color={colors.primary} />
+                    </View>
+                    
+                    <Typography variant="h1" color={colors.primary} style={{ textAlign: 'center', marginBottom: 12, fontSize: 32 }}>
+                        Tuyệt vời!
+                    </Typography>
+                    
+                    <Typography variant="bodyBase" color={colors.textSecondary} style={{ textAlign: 'center', marginBottom: 40 }}>
+                        Bạn đã hoàn thành xuất sắc bài ôn tập hôm nay.
+                    </Typography>
+
+                    <View style={[styles.scoreCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                        <Typography variant="bodyBase" color={colors.textSecondary} style={{ fontFamily: 'Baloo2-Bold' }}>
+                            TỔNG ĐIỂM
+                        </Typography>
+                        <Typography variant="display" color={colors.primary} style={{ fontSize: 48 }}>
+                            {score}
+                        </Typography>
+                    </View>
+                </View>
+
+                <View style={[styles.bottomContainer, { paddingBottom: Math.max(insets.bottom, 20) }]}>
+                    <ButtonCTA
+                        title="Trở về ngay"
+                        onPress={() => router.back()}
+                    />
+                </View>
+            </View>
+        );
+    }
+
+    // --- GIAO DIỆN CÂU HỎI (GIỮ NGUYÊN) ---
     return (
         <View style={{ flex: 1, backgroundColor: colors.background }}>
             <View style={[styles.header, { paddingTop: Math.max(insets.top, 20) }]}>
@@ -122,13 +172,13 @@ export default function ReviewScreen() {
                     <Typography variant="bodySmall" color={colors.textPrimary}>
                         Tiến độ bài học
                     </Typography>
-                    <View style={[styles.progressBadge, { backgroundColor: colors.surfaceGreen || '#D1FAE5' }]}>
+                    <View style={[styles.progressBadge, { backgroundColor: colors.surfaceGreen }]}>
                         <Typography variant="caption" color={colors.primary} style={{ fontFamily: 'BeVietnamPro-Bold' }}>
                             {`${currentIdx + 1}/${totalQuestions}`}
                         </Typography>
                     </View>
                 </View>
-                <View style={[styles.progressBarBg, { backgroundColor: colors.surfaceGreen || '#D1FAE5' }]}>
+                <View style={[styles.progressBarBg, { backgroundColor: colors.surfaceGreen }]}>
                     <View style={[styles.progressBarFill, { backgroundColor: colors.primary, width: `${progress}%` }]} />
                 </View>
             </View>
@@ -162,7 +212,7 @@ export default function ReviewScreen() {
                         )}
                         
                         <View style={[styles.fillBlankCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                            <View style={[styles.bookIconBadge, { backgroundColor: colors.surfaceGreen || '#D1FAE5' }]}>
+                            <View style={[styles.bookIconBadge, { backgroundColor: colors.surfaceGreen }]}>
                                 <Icon name="BookOpen" size={20} color={colors.primary} />
                             </View>
                             <Typography variant="h3" color={colors.textPrimary} style={{ textAlign: 'center', lineHeight: 32 }}>
@@ -199,11 +249,9 @@ export default function ReviewScreen() {
                     })}
                 </View>
                 
-                {/* padding bottom to safely scroll above absolute bottom sheet */}
                 <View style={{ height: 160 }} />
             </ScrollView>
 
-            {/* Bottom Actions OR Result Bottom Sheet */}
             {!isSubmitted ? (
                 <View style={[styles.bottomContainer, { paddingBottom: Math.max(insets.bottom, 20) }]}>
                     <ButtonCTA
@@ -216,7 +264,7 @@ export default function ReviewScreen() {
                 <View style={[
                     styles.resultBottomSheet,
                     { 
-                        backgroundColor: isCorrect ? colors.surfaceGreen || '#D1FAE5' : colors.surfacePink || '#FCE7F3',
+                        backgroundColor: isCorrect ? colors.surfaceGreen : colors.surfacePink,
                         paddingBottom: Math.max(insets.bottom, 20)
                     }
                 ]}>
@@ -248,6 +296,7 @@ export default function ReviewScreen() {
 }
 
 const styles = StyleSheet.create({
+    // Các style cũ giữ nguyên
     header: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -362,5 +411,33 @@ const styles = StyleSheet.create({
         borderRadius: 24,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    
+    // --- Style mới cho màn hình hoàn thành ---
+    completionContainer: {
+        flex: 1,
+        justifyContent: 'space-between',
+    },
+    completionContent: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 24,
+    },
+    trophyBadge: {
+        width: 120,
+        height: 120,
+        borderRadius: 60,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 32,
+    },
+    scoreCard: {
+        width: '100%',
+        padding: 24,
+        borderRadius: 24,
+        borderWidth: 1,
+        alignItems: 'center',
+        gap: 8,
     },
 });
