@@ -100,7 +100,7 @@ export default function ReviewScreen() {
         
         if (!isSubmitted) {
             if (isSelected) return { borderColor: colors.primary, borderWidth: 2, badgeBg: colors.primary, badgeText: colors.textOnAction, textCol: colors.textPrimary };
-            return { borderColor: colors.border, borderWidth: 1, badgeBg: colors.surfaceGreen || '#D1FAE5', badgeText: colors.primary, textCol: colors.textPrimary };
+            return { borderColor: colors.border, borderWidth: 1, badgeBg: colors.surfaceGreen, badgeText: colors.primary, textCol: colors.textPrimary };
         }
 
         const isThisCorrect = optionId === question.correctAnswerId;
@@ -110,7 +110,7 @@ export default function ReviewScreen() {
             return { borderColor: colors.primary, borderWidth: 2, badgeBg: colors.primary, badgeText: colors.textOnAction, textCol: colors.primary };
         }
         if (isThisSelected && !isThisCorrect) {
-            return { borderColor: colors.danger, borderWidth: 2, badgeBg: colors.surfacePink || '#FCE7F3', badgeText: colors.danger, textCol: colors.danger };
+            return { borderColor: colors.danger, borderWidth: 2, badgeBg: colors.surfacePink, badgeText: colors.danger, textCol: colors.danger };
         }
 
         return { borderColor: colors.border, borderWidth: 1, badgeBg: colors.disabled, badgeText: colors.textSecondary, textCol: colors.textSecondary };
@@ -121,7 +121,7 @@ export default function ReviewScreen() {
         return (
             <View style={[styles.completionContainer, { backgroundColor: colors.background, paddingTop: Math.max(insets.top, 20) }]}>
                 <View style={styles.completionContent}>
-                    <View style={[styles.trophyBadge, { backgroundColor: colors.surfaceGreen || '#D1FAE5' }]}>
+                    <View style={[styles.trophyBadge, { backgroundColor: colors.surfaceGreen }]}>
                         {/* Có thể thay 'Star' bằng 'Award' hoặc icon phù hợp trong thư viện của bạn */}
                         <Icon name="Star" size={64} color={colors.primary} />
                     </View>
@@ -172,13 +172,13 @@ export default function ReviewScreen() {
                     <Typography variant="bodySmall" color={colors.textPrimary}>
                         Tiến độ bài học
                     </Typography>
-                    <View style={[styles.progressBadge, { backgroundColor: colors.surfaceGreen || '#D1FAE5' }]}>
+                    <View style={[styles.progressBadge, { backgroundColor: colors.surfaceGreen }]}>
                         <Typography variant="caption" color={colors.primary} style={{ fontFamily: 'BeVietnamPro-Bold' }}>
                             {`${currentIdx + 1}/${totalQuestions}`}
                         </Typography>
                     </View>
                 </View>
-                <View style={[styles.progressBarBg, { backgroundColor: colors.surfaceGreen || '#D1FAE5' }]}>
+                <View style={[styles.progressBarBg, { backgroundColor: colors.surfaceGreen }]}>
                     <View style={[styles.progressBarFill, { backgroundColor: colors.primary, width: `${progress}%` }]} />
                 </View>
             </View>
@@ -212,7 +212,7 @@ export default function ReviewScreen() {
                         )}
                         
                         <View style={[styles.fillBlankCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                            <View style={[styles.bookIconBadge, { backgroundColor: colors.surfaceGreen || '#D1FAE5' }]}>
+                            <View style={[styles.bookIconBadge, { backgroundColor: colors.surfaceGreen }]}>
                                 <Icon name="BookOpen" size={20} color={colors.primary} />
                             </View>
                             <Typography variant="h3" color={colors.textPrimary} style={{ textAlign: 'center', lineHeight: 32 }}>
@@ -264,7 +264,7 @@ export default function ReviewScreen() {
                 <View style={[
                     styles.resultBottomSheet,
                     { 
-                        backgroundColor: isCorrect ? colors.surfaceGreen || '#D1FAE5' : colors.surfacePink || '#FCE7F3',
+                        backgroundColor: isCorrect ? colors.surfaceGreen : colors.surfacePink,
                         paddingBottom: Math.max(insets.bottom, 20)
                     }
                 ]}>
