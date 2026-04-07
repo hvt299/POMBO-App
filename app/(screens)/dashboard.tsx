@@ -12,54 +12,12 @@ import {
   useColorScheme
 } from 'react-native';
 // Thay thế toàn bộ bằng lucide-react-native
-import { Bell, Flame, Zap, MessageCircle, Laptop, Book, Crown } from 'lucide-react-native'; 
+import { Bell, Flame, Zap, MessageCircle, Laptop, Book, Crown, ChevronLeft } from 'lucide-react-native'; 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Colors } from '../../src/constants/theme';
+import { Typography } from '@/components/ui/Typography';
 
 const { width } = Dimensions.get('window');
-
-// --- COLORS THEME ---
-export const Colors = {
-  light: {
-      background: '#F8FAFC',
-      surface: '#FFFFFF',
-      surfaceAlt: '#F1F5F9',
-      border: '#E2E8F0',
-      primary: '#23CE6B',
-      secondary: '#0EA5E9',
-      warning: '#F59E0B',
-      danger: '#EF4444',
-      disabled: '#CBD5E1',
-      rankMaster: '#EC4899',
-      textPrimary: '#0F172A',
-      textSecondary: '#64748B',
-      textOnAction: '#FFFFFF',
-      surfaceGreen: '#D1FAE5',
-      surfacePink: '#FCE7F3',
-      surfacePurple: '#F3E8FF',
-      surfaceBlue: '#E0F2FE',
-      surfaceYellow: '#FEF3C7',
-  },
-  dark: {
-      background: '#0F172A',
-      surface: '#1E293B',
-      surfaceAlt: '#334155',
-      border: '#334155',
-      primary: '#23CE6B',
-      secondary: '#0EA5E9',
-      warning: '#F59E0B',
-      danger: '#EF4444',
-      disabled: '#475569',
-      rankMaster: '#EC4899',
-      textPrimary: '#F8FAFC',
-      textSecondary: '#94A3B8',
-      textOnAction: '#022C15',
-      surfaceGreen: '#064E3B',
-      surfacePink: '#831843',
-      surfacePurple: '#581C87',
-      surfaceBlue: '#0C4A6E',
-      surfaceYellow: '#78350F',
-  },
-};
 
 export default function EnhancedDashboardScreen() {
   const router = useRouter();
@@ -98,17 +56,13 @@ export default function EnhancedDashboardScreen() {
         
         {/* --- HEADER --- */}
         <View style={[styles.header, { paddingTop: Math.max(insets.top, 20) }]}>
-          <View style={styles.userInfo}>
-            <Image source={{ uri: 'https://i.pravatar.cc/150?img=11' }} style={styles.avatar} />
-            <View>
-              <Text style={styles.greeting}>Chào buổi sáng</Text>
-              <Text style={styles.userName}>Alex! ✌️</Text>
-            </View>
-          </View>
-          <TouchableOpacity style={styles.iconButton}>
-            <View style={styles.badge} />
-            <Bell size={22} color={colors.textSecondary} />
+          <TouchableOpacity onPress={() => router.back()} style={styles.headerSideButton}>
+            <ChevronLeft size={28} color={colors.textPrimary} />
           </TouchableOpacity>
+          <Typography variant="h2" color={colors.textPrimary} style={styles.headerTitle}>
+            Bảng điều khiển
+          </Typography>
+          <View style={styles.headerSideButton} />
         </View>
 
         {/* --- STATS CARDS --- */}
@@ -161,7 +115,10 @@ export default function EnhancedDashboardScreen() {
         {/* --- DAILY TASKS --- */}
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>Nhiệm vụ hằng ngày</Text>
-          <View style={styles.tasksCard}>
+          <TouchableOpacity 
+            style={styles.tasksCard}
+            onPress={() => router.push('/tasks')}
+          >
             <View style={styles.circularProgress}>
               <Text style={styles.progressTextMain}>15/20</Text>
               <Text style={styles.progressTextSub}>NV</Text>
@@ -176,7 +133,7 @@ export default function EnhancedDashboardScreen() {
                 ))}
               </View>
             </View>
-          </View>
+          </TouchableOpacity>
         </View>
 
         {/* --- NEXT LESSONS --- */}
@@ -245,7 +202,6 @@ const getStyles = (colors: typeof Colors.light) => StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
     paddingBottom: 16,
@@ -253,53 +209,14 @@ const getStyles = (colors: typeof Colors.light) => StyleSheet.create({
     borderBottomColor: 'transparent',
     marginBottom: 8,
   },
-  userInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  avatar: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    marginRight: 14,
-    borderWidth: 2,
-    borderColor: colors.surface,
-  },
-  greeting: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    fontWeight: '500',
-    marginBottom: 2,
-  },
-  userName: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: colors.textPrimary,
-  },
-  iconButton: {
+  headerSideButton: {
     width: 44,
     height: 44,
-    borderRadius: 22,
-    backgroundColor: colors.surface,
     justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
   },
-  badge: {
-    position: 'absolute',
-    top: 10,
-    right: 12,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.danger,
-    zIndex: 1,
-    borderWidth: 1,
-    borderColor: colors.surface,
+  headerTitle: {
+    flex: 1,
+    textAlign: 'center',
   },
   cardsRow: {
     flexDirection: 'row',
