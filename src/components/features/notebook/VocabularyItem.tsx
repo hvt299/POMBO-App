@@ -10,6 +10,7 @@ export interface VocabularyData {
     word: string;
     type: string;
     isReviewing: boolean;
+    level: number;
     phonetic?: string; // Ví dụ: /rɪˈzɪl.jənt/
     shortDefinition: string;
     detailedDefinition?: string; // Ví dụ: "Kiên cường, mềm dẻo..."

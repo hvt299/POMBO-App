@@ -1,49 +1,60 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity, TextInput } from 'react-native';
-import { Stack, useRouter } from 'expo-router';
+import { View, StyleSheet, ScrollView, TouchableOpacity, useColorScheme } from 'react-native';
+import { useRouter } from 'expo-router';
 import { Typography } from '@/components/ui/Typography';
 import { Icon } from '@/components/ui/Icon';
 import { Colors } from '@/constants/theme';
-import { useColorScheme } from 'react-native';
 import { CategoryCard } from '@/components/features/notebook/CategoryCard';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function NotebookScreen() {
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
     const router = useRouter();
+    const insets = useSafeAreaInsets();
 
     return (
-        <SafeAreaView style={[styles.safeArea, { backgroundColor: colors.background }]}>
-            {/* Header Customize */}
-            <View style={styles.header}>
-                <TouchableOpacity onPress={() => router.back()}>
+        <View style={{ flex: 1, backgroundColor: colors.background }}>
+            {/* Header: Đã sửa lại để dàn hàng ngang chuẩn */}
+            <View style={[
+                styles.headerContainer, 
+                { paddingTop: Math.max(insets.top, 20), backgroundColor: colors.background }
+            ]}>
+                <TouchableOpacity 
+                    onPress={() => router.back()}
+                    style={styles.backButton}
+                >
                     <Icon name="ChevronLeft" size={28} />
                 </TouchableOpacity>
+                
                 <Typography variant="h2" style={styles.headerTitle}>
                     Sổ tay của bạn
                 </Typography>
-                <View style={{ width: 28 }} /> 
+                
+                {/* View rỗng để cân bằng layout cho tiêu đề nằm giữa */}
+                <View style={styles.placeholder} /> 
             </View>
 
-            <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
+            <ScrollView 
+                contentContainerStyle={styles.container} 
+                showsVerticalScrollIndicator={false}
+            >
                 {/* Search Bar & Button Row */}
                 <View style={styles.searchRow}>
-                    {/* Bọc thanh search bằng TouchableOpacity để nhận sự kiện nhấn */}
                     <TouchableOpacity 
                         activeOpacity={0.8}
                         style={[
                             styles.searchBar, 
                             { backgroundColor: colors.surface, borderColor: colors.border }
                         ]}
-                        onPress={() => router.push('/notebook/search')} // Điều hướng sang màn hình search
+                        onPress={() => router.push('/notebook/search')}
                     >
-                        {/* Thêm Icon kính lúp cho giống UI search thực tế */}
                         <Icon name="Search" size={18} color={colors.textSecondary} />
-                        
                         <Typography 
                             variant="caption" 
                             color={colors.textSecondary} 
                             style={{ marginLeft: 8, flex: 1 }}
+                            numberOfLines={1}
                         >
                             tìm kiếm từ vựng trong sổ tay
                         </Typography>
@@ -65,37 +76,53 @@ export default function NotebookScreen() {
                         title="Từ vựng đang ôn tập"
                         image={require('@/assets/images/dragon-nobg.png')} 
                         borderColor={colors.primary}
-                        onPress={() => /*router.push('/notebook/review')*/{}}
+                        onPress={() => router.push('/notebook/review')}
                     />
 
                     <CategoryCard 
                         title="Từ vựng đang ngủ đông"
                         image={require('@/assets/images/dragon-nobg.png')} 
                         borderColor={colors.secondary}
-                        onPress={() =>/* router.push('/notebook/hibernating')*/ {}}
+                        onPress={() => router.push('/notebook/hibernating')}
                     />
                 </View>
             </ScrollView>
-        </SafeAreaView>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    safeArea: { flex: 1 },
-    header: {
+    headerContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 20,
-        paddingVertical: 15,
+        paddingHorizontal: 16,
+        paddingBottom: 10,
+        zIndex: 10,
     },
-    headerTitle: { flex: 1, textAlign: 'center' },
-    container: { paddingHorizontal: 24, paddingTop: 10 },
+    backButton: {
+        width: 40,
+        height: 40,
+        justifyContent: 'center',
+        alignItems: 'flex-start',
+    },
+    headerTitle: { 
+        flex: 1, 
+        textAlign: 'center',
+    },
+    placeholder: { 
+        width: 40, // Bằng kích thước nút back để tiêu đề căn giữa tuyệt đối
+    },
+    container: { 
+        paddingHorizontal: 20, 
+        paddingTop: 10,
+        paddingBottom: 20 
+    },
     searchRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 30,
-        gap: 12,
+        marginBottom: 24,
+        gap: 10,
     },
     searchBar: {
         flex: 1,
@@ -108,10 +135,12 @@ const styles = StyleSheet.create({
     },
     saveBtn: {
         paddingHorizontal: 12,
-        paddingVertical: 8,
-        borderRadius: 12,
+        height: 38,
+        borderRadius: 10,
         justifyContent: 'center',
         alignItems: 'center',
     },
-    categoryList: { marginTop: 10 }
+    categoryList: { 
+        gap: 16 // Sử dụng gap thay vì margin cho các item trong list
+    }
 });
