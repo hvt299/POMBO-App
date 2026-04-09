@@ -29,10 +29,10 @@ export default function AchievementsScreen() {
         const getIconColor = (iconName: string) => {
             switch (iconName) {
                 case 'Flame': return colors.warning;
-                case 'BookOpen': return (colors as any).secondary || colors.textSecondary;
+                case 'BookOpen': return colors.secondary || colors.textSecondary;
                 case 'Trophy': return colors.primary;
                 case 'GraduationCap': return colors.danger;
-                case 'Users': return (colors as any).rankMaster || '#EC4899';
+                case 'Users': return colors.rankMaster;
                 default: return colors.primary;
             }
         };
@@ -64,7 +64,7 @@ export default function AchievementsScreen() {
                     {!isMaxed && (
                         <View style={[styles.rewardBadge, { backgroundColor: isUnlocked ? rewardColor : colors.surfaceAlt }]}>
                             <Typography variant="tiny" style={{ color: isUnlocked ? '#FFF' : colors.textSecondary, fontFamily: 'BeVietnamPro-Bold' }}>
-                                +{data.reward} {data.rewardType === 'coin' ? 'Coin' : 'Gem'}
+                                +{data.reward} {data.rewardType === 'coin' ? 'Coins' : 'Gems'}
                             </Typography>
                         </View>
                     )}

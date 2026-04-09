@@ -141,7 +141,7 @@ export default function InviteFriendsScreen() {
 
                                     {/* Số phần thưởng */}
                                     <Typography variant="caption" style={{ color: isAchieved ? rewardColor : colors.textSecondary, fontFamily: 'BeVietnamPro-Bold', marginTop: 8 }}>
-                                        +{milestone.reward} {milestone.type === 'coin' ? 'Coin' : 'Gem'}
+                                        +{milestone.reward} {milestone.type === 'coin' ? 'Coins' : 'Gems'}
                                     </Typography>
 
                                     {/* Mốc số người */}
