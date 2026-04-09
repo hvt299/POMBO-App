@@ -82,6 +82,7 @@ export const NotebookListBase = ({ title, initialData, themeColor }: NotebookLis
     };
 
     const insets = useSafeAreaInsets();
+    const [isFocused, setIsFocused] = useState(false);
 
     return (
         <View style={{ flex: 1, backgroundColor: colors.background }}>
@@ -94,25 +95,61 @@ export const NotebookListBase = ({ title, initialData, themeColor }: NotebookLis
             </View>
 
             {/* Search Bar */}
-            <View style={styles.actionRow}>
-                <View style={[styles.searchBar, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                    <Icon name="Search" size={18} color={themeColor} />
-                    <TextInput 
-                        placeholder="tìm kiếm..."
-                        placeholderTextColor={colors.textSecondary}
-                        style={[styles.searchInput, { color: colors.textPrimary }]}
-                        value={searchQuery}
-                        onChangeText={setSearchQuery}
-                    />
-                </View>
+            <View style={styles.searchSection}>
+                <View style={styles.searchRow}>
+                    {/* Đổi màu viền dựa trên trạng thái focus */}
+                    <View style={[
+                        styles.searchBar, 
+                        { 
+                            backgroundColor: colors.surface, 
+                            borderColor: isFocused ? colors.primary : colors.border 
+                        }
+                    ]}>
+                        {/* Đổi màu Icon */}
+                        <Icon 
+                            name="Search" 
+                            size={18} 
+                            color={isFocused ? colors.primary : colors.textSecondary} 
+                        />
+                        
+                        <TextInput 
+                            style={[
+                                styles.searchInput, 
+                                // Chữ có màu primary khi đang nhập, bình thường là textSecondary
+                                { color: isFocused ? colors.textPrimary : colors.textSecondary } 
+                            ]}
+                            placeholder="tìm kiếm..."
+                            placeholderTextColor={colors.textSecondary}
+                            value={searchQuery}
+                            onChangeText={setSearchQuery}
+                            autoCapitalize="none"
+                            autoCorrect={false}
+                            // Bắt sự kiện bàn phím bật/tắt
+                            onFocus={() => setIsFocused(true)}
+                            onBlur={() => setIsFocused(false)}
+                        />
+                        
+                        {/* Nút Xóa */}
+                        {searchQuery !== '' ? (
+                            <TouchableOpacity onPress={() => setSearchQuery('')} style={styles.clearBtn}>
+                                <Icon name="XCircle" size={18} color={colors.textSecondary} />
+                            </TouchableOpacity>
+                        ) : null}
+                    </View>
 
-                <TouchableOpacity 
-                    style={[styles.saveBtn, { backgroundColor: hasChanges ? colors.secondary : colors.disabled }]}
-                    disabled={!hasChanges}
-                    onPress={handleSave}
-                >
-                    <Typography variant="tiny" color={hasChanges ? '#fff' : colors.textSecondary}>Lưu</Typography>
-                </TouchableOpacity>
+                    <TouchableOpacity 
+                        style={[
+                            styles.saveBtn, 
+                            { backgroundColor: hasChanges ? colors.secondary : colors.disabled }
+                        ]}
+                        disabled={!hasChanges}
+                        onPress={handleSave}
+                    >
+                        <Typography variant="tiny" color={hasChanges ? '#fff' : colors.textSecondary}>
+                            Lưu thay đổi
+                        </Typography>
+                    </TouchableOpacity>
+                </View>
             </View>
 
             {/* UI Level Bar chuẩn theo theme */}
@@ -189,9 +226,40 @@ const styles = StyleSheet.create({
     },
     headerTitle: { flex: 1, textAlign: 'center' },
     actionRow: { flexDirection: 'row', paddingHorizontal: 24, gap: 10, marginBottom: 20 },
-    searchBar: { flex: 1, height: 44, borderRadius: 22, borderWidth: 1, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16 },
-    searchInput: { flex: 1, marginLeft: 10, fontSize: 14 },
-    saveBtn: { height: 44, paddingHorizontal: 20, borderRadius: 15, justifyContent: 'center' },
+    searchSection: {
+        paddingTop: 5,
+        paddingHorizontal: 24,
+    },
+    searchRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+    },
+    searchBar: {
+        flex: 1,
+        height: 44,
+        borderRadius: 22,
+        borderWidth: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+    },
+    searchInput: {
+        flex: 1,
+        height: '100%',
+        marginLeft: 10,
+        fontSize: 12, 
+    },
+    clearBtn: {
+        padding: 4, // Style cho nút xóa text
+    },
+    saveBtn: {
+        paddingHorizontal: 12,
+        height: 38, // Thu gọn chiều cao từ 44 xuống 38
+        borderRadius: 10, // Bo góc ít hơn (từ 15 xuống 10)
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
     
     // Style cho Level Bar
     levelWrapper: { marginHorizontal: 20, marginBottom: 20 },
@@ -205,7 +273,7 @@ const styles = StyleSheet.create({
     colorSegment: { flex: 1 },
     levelContainer: { 
         flexDirection: 'row', 
-        height: 60,
+        height: 40,
         gap: 0 
     },
     levelTab: { 
