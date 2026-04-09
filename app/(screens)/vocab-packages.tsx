@@ -6,7 +6,7 @@ import { Icon } from '@/components/ui/Icon';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, Easing, withSpring } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, Easing, withSpring, withSequence, withDelay } from 'react-native-reanimated';
 
 const PACKS = [
     { id: 'x50', title: 'Gói Đặc Quyền', amount: 'X50', originalPrice: '5.000', price: '2.500', discount: '-50%', isFeatured: true, label: 'SIÊU LỜI' },
@@ -26,51 +26,92 @@ export default function VocabPackagesScreen() {
     const categoryName = params.categoryName || 'Du lịch';
     const [balances, setBalances] = useState({ coin: 1255, gem: 5000 });
 
-    const [showAnimation, setShowAnimation] = useState(false);
-    const [rewardAmount, setRewardAmount] = useState('');
-
     const featuredPack = PACKS.find(p => p.isFeatured);
     const normalPacks = PACKS.filter(p => !p.isFeatured);
 
     const storeColor = colors.primary;
 
+    const [showAnimation, setShowAnimation] = useState(false);
+    const [showResult, setShowResult] = useState(false);
+    const [rewardAmount, setRewardAmount] = useState('');
+
+    const cardScale = useSharedValue(0);
+    const cardRotate = useSharedValue(0);
+    const stackProgress = useSharedValue(0);
+    const resultOpacity = useSharedValue(0);
+    const questionOpacity = useSharedValue(1);
     const rotation = useSharedValue(0);
-    const scale = useSharedValue(0);
-
-    const startAnimation = () => {
-        rotation.value = withRepeat(
-            withTiming(360, { duration: 6000, easing: Easing.linear }),
-            -1, false
-        );
-        scale.value = withSpring(1, { damping: 12, stiffness: 90 });
-    };
-
-    const stopAnimation = () => {
-        rotation.value = 0;
-        scale.value = 0;
-    };
 
     const handlePurchase = (pack: any) => {
         setRewardAmount(pack.amount);
         setShowAnimation(true);
-        startAnimation();
+        setShowResult(false);
+
+        cardScale.value = 0;
+        cardRotate.value = 0;
+        stackProgress.value = 0;
+        resultOpacity.value = 0;
+        questionOpacity.value = 1;
+        rotation.value = withRepeat(withTiming(360, { duration: 6000, easing: Easing.linear }), -1, false);
+
+        cardScale.value = withSequence(
+            withTiming(1.2, { duration: 400 }),
+            withTiming(0.9, { duration: 300 })
+        );
+        questionOpacity.value = withDelay(700, withTiming(0, { duration: 300 }));
+
+        cardRotate.value = withDelay(1000, withRepeat(
+            withSequence(withTiming(-3, { duration: 50 }), withTiming(3, { duration: 50 })),
+            10, true
+        ));
+        stackProgress.value = withDelay(1200, withSpring(1, { damping: 12, stiffness: 90 }));
 
         setTimeout(() => {
-            setShowAnimation(false);
-            stopAnimation();
-            setBalances(prev => ({
-                ...prev,
-                coin: prev.coin - parseInt(pack.price.replace(/\./g, ''))
-            }));
-        }, 2500);
+            setShowResult(true);
+            resultOpacity.value = withTiming(1, { duration: 500 });
+        }, 2200);
     };
+
+    const closeAnimation = () => {
+        setShowAnimation(false);
+    };
+
+    const mainCardStyle = useAnimatedStyle(() => ({
+        transform: [{ scale: cardScale.value }, { rotateZ: `${cardRotate.value}deg` }],
+        zIndex: 5,
+    }));
+
+    const stackCard1Style = useAnimatedStyle(() => ({
+        transform: [
+            { scale: cardScale.value * 0.9 },
+            { translateX: stackProgress.value * -40 },
+            { translateY: stackProgress.value * 20 },
+            { rotateZ: `${stackProgress.value * -12}deg` }
+        ],
+        opacity: stackProgress.value * 0.8,
+        position: 'absolute',
+        zIndex: 3,
+    }));
+
+    const stackCard2Style = useAnimatedStyle(() => ({
+        transform: [
+            { scale: cardScale.value * 0.8 },
+            { translateX: stackProgress.value * 40 },
+            { translateY: stackProgress.value * 40 },
+            { rotateZ: `${stackProgress.value * 15}deg` }
+        ],
+        opacity: stackProgress.value * 0.5,
+        position: 'absolute',
+        zIndex: 1,
+    }));
+
+    const resultStyle = useAnimatedStyle(() => ({
+        opacity: resultOpacity.value,
+        transform: [{ translateY: withSpring(resultOpacity.value === 1 ? 0 : 20) }]
+    }));
 
     const animatedRaysStyle = useAnimatedStyle(() => ({
         transform: [{ rotateZ: `${rotation.value}deg` }],
-    }));
-
-    const animatedIconStyle = useAnimatedStyle(() => ({
-        transform: [{ scale: scale.value }],
     }));
 
     const SunburstRays = () => {
@@ -99,7 +140,6 @@ export default function VocabPackagesScreen() {
                     <Typography variant="h2" color={colors.textPrimary}>Gói từ vựng</Typography>
                 </View>
 
-                {/* Balances */}
                 <View style={styles.miniBalances}>
                     <View style={[styles.miniBalancePill, { backgroundColor: colors.surface, borderColor: colors.border }]}>
                         <Icon name="Coins" size={14} color={colors.warning} />
@@ -147,7 +187,6 @@ export default function VocabPackagesScreen() {
                             </View>
                         </View>
 
-                        {/* Nút thanh toán (Chỉ dùng Icon Coin) */}
                         <View style={[styles.premiumButton, { backgroundColor: storeColor }]}>
                             <View style={{ alignItems: 'center' }}>
                                 {featuredPack.discount && (
@@ -215,7 +254,7 @@ export default function VocabPackagesScreen() {
                                     ) : null}
                                 </View>
 
-                                <View style={[styles.priceButton, { borderColor: storeColor, backgroundColor: colors.surface }]}>
+                                <View style={[styles.priceButton, { borderColor: storeColor, backgroundColor: colors.surfaceGreen }]}>
                                     <View style={{ marginRight: 4 }}><Icon name="Coins" size={14} color={colors.warning} strokeWidth={2.5} /></View>
                                     <Typography variant="bodySmall" color={storeColor} style={{ fontFamily: 'BeVietnamPro-Bold' }}>
                                         {pack.price}
@@ -228,20 +267,45 @@ export default function VocabPackagesScreen() {
                 <View style={{ height: 40 }} />
             </ScrollView>
 
-            {/* --- OVERLAY ANIMATION MUA THÀNH CÔNG --- */}
+            {/* --- OVERLAY ANIMATION MỞ GÓI --- */}
             <Modal visible={showAnimation} transparent animationType="fade">
                 <View style={[styles.overlay, { backgroundColor: 'rgba(0,0,0,0.85)' }]}>
                     <SunburstRays />
 
-                    <Animated.View style={[styles.rewardIconWrapper, animatedIconStyle]}>
-                        <Icon name="PackageOpen" size={140} color={storeColor} strokeWidth={1.5} />
+                    {/* KHỐI THẺ XẾP CHỒNG */}
+                    <View style={styles.gachaContainer}>
+                        <Animated.View style={[styles.gachaCard, stackCard2Style, { backgroundColor: storeColor }]} />
+                        <Animated.View style={[styles.gachaCard, stackCard1Style, { backgroundColor: storeColor }]} />
 
-                        <Typography variant="display" style={{ color: '#FFF', marginTop: 16, fontFamily: 'Baloo2-ExtraBold', textShadowColor: 'rgba(0,0,0,0.5)', textShadowOffset: { width: 0, height: 4 }, textShadowRadius: 8 }}>
-                            {rewardAmount}
+                        <Animated.View style={[styles.gachaCard, mainCardStyle, { backgroundColor: storeColor }]}>
+                            <Animated.View style={{ opacity: questionOpacity }}>
+                                <Icon name="HelpCircle" size={80} color="rgba(255,255,255,0.5)" />
+                            </Animated.View>
+
+                            {showResult && (
+                                <Animated.View style={[StyleSheet.absoluteFillObject, { justifyContent: 'center', alignItems: 'center' }]}>
+                                    <Icon name="PackageOpen" size={60} color="#FFF" strokeWidth={1.5} />
+                                </Animated.View>
+                            )}
+                        </Animated.View>
+                    </View>
+
+                    {/* VĂN BẢN & NÚT TƯƠNG TÁC */}
+                    <Animated.View style={[styles.resultContent, resultStyle]}>
+                        <Typography variant="display" style={{ color: '#FFF', fontFamily: 'Baloo2-ExtraBold', textShadowColor: 'rgba(0,0,0,0.5)', textShadowOffset: { width: 0, height: 4 }, textShadowRadius: 8 }}>
+                            +{rewardAmount.replace('X', '')}
                         </Typography>
-                        <Typography variant="h2" style={{ color: colors.surfaceGreen }}>
+                        <Typography variant="h3" style={{ color: storeColor, marginBottom: 32 }}>
                             Từ vựng mới!
                         </Typography>
+
+                        <TouchableOpacity style={[styles.btnAction, { backgroundColor: colors.surfaceGreen }]} onPress={closeAnimation}>
+                            <Typography variant="buttonCTA" style={{ color: storeColor }}>Học ngay</Typography>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity onPress={closeAnimation} style={{ marginTop: 20 }}>
+                            <Typography variant="bodySmall" style={{ color: colors.textSecondary }}>Quay lại</Typography>
+                        </TouchableOpacity>
                     </Animated.View>
                 </View>
             </Modal>
@@ -275,9 +339,13 @@ const styles = StyleSheet.create({
     discountWrapper: { minHeight: 24, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', zIndex: 2 },
     discountBadge: { paddingHorizontal: 4, paddingVertical: 2, borderRadius: 4 },
     priceButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', width: '100%', paddingVertical: 8, borderRadius: 12, borderWidth: 1.5, marginTop: 'auto', zIndex: 2 },
-    
+
     overlay: { flex: 1, justifyContent: 'center', alignItems: 'center', overflow: 'hidden' },
     raysContainer: { position: 'absolute', width: 1000, height: 1000, justifyContent: 'center', alignItems: 'center', opacity: 0.25 },
     rayItem: { position: 'absolute', width: 1000, height: 60, backgroundColor: '#FFFFFF' },
-    rewardIconWrapper: { alignItems: 'center', justifyContent: 'center', zIndex: 10 }
+
+    gachaContainer: { justifyContent: 'center', alignItems: 'center', zIndex: 10, height: 300 },
+    gachaCard: { width: 140, height: 200, borderRadius: 20, borderWidth: 3, borderColor: 'rgba(255,255,255,0.2)', justifyContent: 'center', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.4, shadowRadius: 15, elevation: 10 },
+    resultContent: { position: 'absolute', bottom: '15%', alignItems: 'center', width: '100%', zIndex: 20 },
+    btnAction: { paddingHorizontal: 40, paddingVertical: 14, borderRadius: 24, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 4, elevation: 4 },
 });
