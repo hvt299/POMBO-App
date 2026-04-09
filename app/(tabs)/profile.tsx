@@ -104,14 +104,14 @@ export default function ProfileScreen() {
                             <View style={styles.assetWatermark}>
                                 <Icon name="Coins" size={80} color={colors.warning} />
                             </View>
-                            <Typography variant="caption" style={{ color: colors.warning, fontFamily: 'BeVietnamPro-Bold' }}>POM Coin</Typography>
+                            <Typography variant="caption" style={{ color: colors.warning, fontFamily: 'BeVietnamPro-Bold' }}>Coins</Typography>
                             <Typography variant="h3" style={{ color: colors.warning }}>{user.pomCoin}</Typography>
                         </View>
                         <View style={[styles.assetBox, { backgroundColor: colors.surfacePink }]}>
                             <View style={styles.assetWatermark}>
                                 <Icon name="Gem" size={80} color={colors.rankMaster} />
                             </View>
-                            <Typography variant="caption" style={{ color: colors.rankMaster, fontFamily: 'BeVietnamPro-Bold' }}>Gem</Typography>
+                            <Typography variant="caption" style={{ color: colors.rankMaster, fontFamily: 'BeVietnamPro-Bold' }}>Gems</Typography>
                             <Typography variant="h3" style={{ color: colors.rankMaster }}>{user.gem}</Typography>
                         </View>
                     </View>

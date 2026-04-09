@@ -1,131 +1,137 @@
-import React from 'react';
-import { View, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import { View, StyleSheet, TouchableOpacity, Image, ScrollView, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Typography } from '@/components/ui/Typography';
 import { Icon } from '@/components/ui/Icon';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { InputField } from '@/components/ui/InputField';
+import { ALL_COURSES } from '@/constants/courses';
+
+const { width } = Dimensions.get('window');
+const CARD_WIDTH = width * 0.7;
 
 export default function MyCoursesScreen() {
     const router = useRouter();
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
     const insets = useSafeAreaInsets();
+    const [searchQuery, setSearchQuery] = useState('');
 
-    // Dữ liệu mẫu cho các mục
-    const courseCategories = [
-        {
-            id: 'ongoing-courses',
-            title: 'Khóa học đang học',
-            borderColor: colors.primary,
-            icon: require('@/assets/images/dragon-nobg.png'),
-        },
-        {
-            id: 'completed-courses',
-            title: 'Khóa học đã hoàn thành',
-            borderColor: colors.secondary,
-            icon: require('@/assets/images/dragon-nobg.png'),
-        }
-    ];
+    const ongoingCourses = ALL_COURSES.filter(c => c.status === 'ongoing');
+    const completedCourses = ALL_COURSES.filter(c => c.status === 'completed');
+
+    const filteredOngoing = ongoingCourses.filter(c => c.title.toLowerCase().includes(searchQuery.toLowerCase()));
+    const filteredCompleted = completedCourses.filter(c => c.title.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    const CourseSection = ({ title, data, onSeeAll, isCompleted = false }: any) => {
+        const themeColor = isCompleted ? colors.primary : colors.secondary;
+
+        return (
+            <View style={styles.sectionContainer}>
+                <View style={styles.sectionHeader}>
+                    <Typography variant="h3" color={colors.textPrimary}>{title}</Typography>
+                    <TouchableOpacity onPress={onSeeAll}>
+                        <Typography variant="bodySmall" color={themeColor} style={{ fontFamily: 'BeVietnamPro-Bold' }}>
+                            Xem tất cả
+                        </Typography>
+                    </TouchableOpacity>
+                </View>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalList}>
+                    {data.map((item: any) => (
+                        <TouchableOpacity
+                            key={item.id}
+                            style={[styles.horizontalCard, { backgroundColor: colors.surface, borderColor: themeColor }]}
+                            activeOpacity={0.8}
+                            onPress={() => router.push({
+                                pathname: isCompleted ? '/completed-course-detail' : '/course-detail',
+                                params: { id: item.id }
+                            })}
+                        >
+                            <Image source={{ uri: item.image }} style={styles.cardImage} resizeMode="cover" />
+                            <Typography variant="bodyBase" color={colors.textPrimary} style={styles.cardTitle} numberOfLines={1}>
+                                {item.title}
+                            </Typography>
+                            {isCompleted ? (
+                                <Typography variant="tiny" color={colors.textSecondary}>
+                                    Hoàn thành vào {item.completionDate}
+                                </Typography>
+                            ) : (
+                                <View style={styles.progressRow}>
+                                    <View style={[styles.progressBg, { backgroundColor: colors.surfaceAlt }]}>
+                                        <View style={[styles.progressFill, { width: `${item.progress * 100}%`, backgroundColor: themeColor }]} />
+                                    </View>
+                                    <Typography variant="tiny" color={colors.textSecondary}>{Math.round(item.progress * 100)}%</Typography>
+                                </View>
+                            )}
+                        </TouchableOpacity>
+                    ))}
+                </ScrollView>
+            </View>
+        );
+    };
 
     return (
-        <View style={[styles.container, { backgroundColor: colors.background }]}>
-            {/* Header Area */}
+        <View style={[styles.container, { backgroundColor: colors.background, paddingBottom: insets.bottom }]}>
             <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
-                <TouchableOpacity
-                    onPress={() => router.back()}
-                    style={styles.backButton}
-                >
+                <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
                     <Icon name="ChevronLeft" size={28} color={colors.textPrimary} />
                 </TouchableOpacity>
-
-                <Typography variant="h2" color={colors.textPrimary} style={styles.headerTitle}>
-                    Khóa học của bạn
-                </Typography>
-
-                {/* View trống để căn giữa title */}
+                <Typography variant="h2" color={colors.textPrimary} style={styles.headerTitle}>Khóa học của tôi</Typography>
                 <View style={{ width: 28 }} />
             </View>
 
-            <ScrollView
-                contentContainerStyle={styles.scrollContent}
-                showsVerticalScrollIndicator={false}
-            >
-                {courseCategories.map((item) => (
-                    <TouchableOpacity
-                        key={item.id}
-                        activeOpacity={0.7}
-                        style={[
-                            styles.card,
-                            {
-                                borderColor: item.borderColor,
-                                backgroundColor: colors.surface
-                            }
-                        ]}
-                        onPress={() => {
-                            // Điều hướng tùy theo id
-                            router.push(`/${item.id}`)
-                        }}
-                    >
-                        <Image
-                            source={item.icon}
-                            style={styles.image}
-                            resizeMode="contain"
-                        />
-                        <Typography variant="h3" color={colors.textPrimary} style={styles.cardText}>
-                            {item.title}
+            <View style={styles.searchContainer}>
+                <InputField
+                    placeholder="Tìm kiếm khóa học của tôi"
+                    leftIcon={"Search"}
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                />
+            </View>
+
+            <ScrollView showsVerticalScrollIndicator={false}>
+                <TouchableOpacity
+                    style={[styles.miniBanner, { backgroundColor: colors.surfaceBlue, borderColor: colors.secondary }]}
+                    activeOpacity={0.8}
+                    onPress={() => router.push('/course-shop')}
+                >
+                    <View style={styles.bannerInfo}>
+                        <Typography variant="bodyBase" style={{ fontFamily: 'BeVietnamPro-Bold', color: colors.secondary }}>
+                            Khám phá thêm khóa học mới
                         </Typography>
-                    </TouchableOpacity>
-                ))}
+                        <Typography variant="tiny" color={colors.textSecondary}>Học thêm kiến thức, nhận thêm quà tặng</Typography>
+                    </View>
+                    <Icon name="ArrowRightCircle" size={24} color={colors.secondary} />
+                </TouchableOpacity>
+
+                <CourseSection title="Khóa học đang học" data={filteredOngoing} onSeeAll={() => router.push('/ongoing-courses')} />
+                <CourseSection title="Khóa học đã hoàn thành" data={filteredCompleted} onSeeAll={() => router.push('/completed-courses')} isCompleted />
+                <View style={{ height: 40 }} />
             </ScrollView>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 16,
-        paddingBottom: 20,
-    },
-    backButton: {
-        padding: 4,
-    },
-    headerTitle: {
-        textAlign: 'center',
-        fontWeight: '700',
-    },
-    scrollContent: {
-        paddingHorizontal: 24,
-        paddingTop: 20,
-        gap: 24, // Khoảng cách giữa các card
-    },
-    card: {
-        width: '100%',
-        aspectRatio: 1.4, // Tạo hình chữ nhật bo góc như mẫu
-        borderRadius: 32,
-        borderWidth: 2,
-        justifyContent: 'center',
-        alignItems: 'center',
-        // Shadow cho card
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 4,
-    },
-    image: {
-        width: '80%',
-        height: '80%',
-    },
-    cardText: {
-        fontSize: 18,
-        fontWeight: '600',
-    },
+    container: { flex: 1 },
+    header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, marginBottom: 10 },
+    backButton: { padding: 4 },
+    headerTitle: { fontWeight: '700' },
+    searchContainer: { paddingHorizontal: 20, marginBottom: 16 },
+
+    miniBanner: { flexDirection: 'row', alignItems: 'center', marginHorizontal: 20, padding: 16, borderRadius: 20, borderWidth: 1, marginBottom: 24 },
+    bannerInfo: { flex: 1 },
+    
+    sectionContainer: { marginBottom: 30 },
+    sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, marginBottom: 16 },
+    horizontalList: { paddingHorizontal: 20, gap: 16 },
+    horizontalCard: { width: CARD_WIDTH, padding: 16, borderRadius: 24, borderWidth: 1.5 },
+    cardImage: { width: '100%', height: 120, borderRadius: 12, marginBottom: 12 },
+    cardTitle: { fontFamily: 'BeVietnamPro-Bold', marginBottom: 8 },
+    
+    progressRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+    progressBg: { flex: 1, height: 6, borderRadius: 3, overflow: 'hidden' },
+    progressFill: { height: '100%' },
 });

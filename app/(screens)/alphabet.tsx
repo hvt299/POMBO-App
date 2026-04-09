@@ -92,7 +92,7 @@ export default function AlphabetScreen() {
     }, [currentPlayer]);
 
     return (
-        <View style={{ flex: 1, backgroundColor: colors.background }}>
+        <View style={{ flex: 1, backgroundColor: colors.background, paddingBottom: insets.bottom }}>
             <View style={[styles.header, { paddingTop: Math.max(insets.top, 20) }]}>
                 <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
                     <Icon name="ChevronLeft" size={28} color={colors.textPrimary} />
@@ -103,7 +103,7 @@ export default function AlphabetScreen() {
                 <View style={{ width: 40 }} />
             </View>
 
-            <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: Math.max(insets.bottom, 40) }]} showsVerticalScrollIndicator={false}>
+            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                 <Typography variant="bodyBase" color={colors.textSecondary} style={styles.subtitle}>
                     Tập nghe và học phát âm các âm trong tiếng Anh
                 </Typography>
@@ -159,6 +159,8 @@ export default function AlphabetScreen() {
                         <View key={`hidden-cons-${i}`} style={styles.hiddenCard} />
                     ))}
                 </View>
+
+                <View style={{ height: 40 }} />
             </ScrollView>
         </View>
     );
