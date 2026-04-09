@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity, Image, ScrollView, Platform } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Typography } from '@/components/ui/Typography';
 import { Icon } from '@/components/ui/Icon';
@@ -13,283 +13,158 @@ export default function CompletedCourseDetailScreen() {
     const colors = Colors[colorScheme];
     const insets = useSafeAreaInsets();
 
-    // Màu chủ đạo cho màn hình này (màu xanh dương nhạt)
-    const BLUE_THEME_COLOR = colors.secondary;
-    const GREEN_THEME_COLOR = colors.primary;
-    const ORANGE_REWARD_COLOR = colors.warning;
-
-    // Dữ liệu mẫu cho màn hình
     const courseData = {
-        title: 'Grammar Essentials',
-        hasBadge: true, // Icon tích xanh ở header
-        banner: require('@/assets/images/dragon.png'), // Đổi đường dẫn ảnh banner phù hợp
-        progress: { 
-            percent: 100, 
-            current: 20, 
-            total: 20,
-            rewardText: "Thưởng 200 Coins"
-        },
+        title: 'Grammar & Vocab Essentials',
+        instructor: 'John Doe',
+        completionDate: '12/05/2023',
+        rewardText: "+200 Coins",
+        banner: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?q=80&w=1973',
+        progress: { percent: 100, current: 6, total: 6 },
         chapters: [
             {
                 id: 'c1',
-                title: 'Chương 1: Airport & Arrival',
-                progressText: '5/5 Bài học',
+                title: 'Chương 1: Tense & Time',
+                progressText: '3/3 Bài học',
                 isCompleted: true,
                 lessons: [
-                    { id: 'l1', title: 'Checking In', meta: '10 mins • Vocabulary', status: 'completed' },
-                    { id: 'l2', title: 'Security Check', meta: '15 mins • Speaking', status: 'completed' },
+                    { id: 'l1', title: 'Từ vựng: Words expressing Time', meta: '10 mins • Từ vựng', status: 'completed' },
+                    { id: 'l2', title: 'Từ vựng: Adverbs of Frequency', meta: '15 mins • Từ vựng', status: 'completed' },
+                    { id: 't1', title: 'Bài Test: Ôn tập từ chỉ thời gian', meta: '20 mins • Ôn tập', status: 'completed' },
                 ]
             },
             {
                 id: 'c2',
-                title: 'Chương 2: Airport & Arrival',
-                progressText: '1/13 Bài học',
-                isCompleted: false,
+                title: 'Chương 2: Work & Jobs',
+                progressText: '3/3 Bài học',
+                isCompleted: true,
                 lessons: [
-                    { id: 'l3', title: 'Asking for Directions', meta: '12 mins • Interaction', status: 'current' },
-                    { id: 'l4', title: 'Taking a Taxi', meta: '8 mins • Listening', status: 'locked' },
-                    { id: 'l5', title: 'Public Transport', meta: '20 mins • Grammar', status: 'locked' },
+                    { id: 'l3', title: 'Từ vựng: Professions & Workplaces', meta: '12 mins • Từ vựng', status: 'completed' },
+                    { id: 'l4', title: 'Từ vựng: Office Equipment', meta: '10 mins • Từ vựng', status: 'completed' },
+                    { id: 't2', title: 'Bài Test: Ôn tập từ vựng Công việc', meta: '20 mins • Ôn tập', status: 'completed' },
                 ]
             }
         ]
     };
 
-    // Hàm render icon và màu sắc tùy theo trạng thái bài học
-    const getLessonStyle = (status: string) => {
-        switch (status) {
-            case 'completed':
-                return {
-                    icon: 'Check',
-                    iconBg: colors.surfaceGreen, // Xanh lá nhạt
-                    iconColor: colors.primary, // Xanh lá
-                    leftBorderColor: colors.primary,
-                };
-            case 'current':
-                return {
-                    icon: 'BookOpen',
-                    iconBg: colors.surfaceBlue, // Xanh dương nhạt
-                    iconColor: colors.secondary,
-                    leftBorderColor: colors.secondary,
-                };
-            case 'locked':
-            default:
-                return {
-                    icon: 'Lock',
-                    iconBg: colors.surfaceAlt, // Xám nhạt
-                    iconColor: colors.textSecondary, // Xám
-                    leftBorderColor: 'transparent',
-                };
-        }
-    };
-
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
-            {/* Header */}
             <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
                 <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
                     <Icon name="ChevronLeft" size={28} color={colors.textPrimary} />
                 </TouchableOpacity>
-                <View style={styles.headerTitleContainer}>
-                    <Typography variant="h2" color={colors.textPrimary} style={styles.headerTitle}>
-                        {courseData.title}
-                    </Typography>
-                    {courseData.hasBadge && (
-                        <Icon name="CheckCircle" size={18} color={BLUE_THEME_COLOR} style={styles.titleBadge} />
-                    )}
-                </View>
+                <Typography variant="h2" color={colors.textPrimary} style={styles.headerTitle} numberOfLines={1}>
+                    Chi tiết khóa học
+                </Typography>
                 <View style={{ width: 28 }} />
             </View>
 
-            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-                {/* Banner */}
-                <Image source={courseData.banner} style={styles.banner} resizeMode="cover" />
+            <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: 100 }]} showsVerticalScrollIndicator={false}>
+                <Image source={{ uri: courseData.banner }} style={styles.banner} resizeMode="cover" />
 
-                {/* Progress Card (phiên bản xanh dương) */}
-                <View style={[styles.progressCard, { backgroundColor: colors.surface, borderColor: BLUE_THEME_COLOR }]}>
-                    <View style={styles.progressInfo}>
-                        <Typography variant="bodyBase" color={colors.textSecondary}>
-                            Tiến độ khóa học
+                <View style={styles.courseInfoContainer}>
+                    <View style={styles.courseTitleRow}>
+                        <Typography
+                            variant="h2"
+                            color={colors.textPrimary}
+                            style={styles.courseTitle}
+                            numberOfLines={1}
+                        >
+                            {courseData.title}
                         </Typography>
-                        <Typography variant="h2" color={colors.textPrimary} style={styles.progressPercent}>
-                            {courseData.progress.percent}% Hoàn thành
-                        </Typography>
-                        <Typography variant="bodySmall" color={ORANGE_REWARD_COLOR}>
-                            {courseData.progress.rewardText}
-                        </Typography>
+
+                        <Icon name="CheckCircle" size={24} color={colors.primary} />
                     </View>
 
-                    {/* Vòng tròn tiến độ đầy đủ (Giả lập bằng View) */}
-                    <View style={styles.circularProgressContainer}>
-                        <View style={[styles.circularProgress, { borderColor: BLUE_THEME_COLOR }]}>
-                            <Typography variant="h3" color={colors.textPrimary}>
-                                {courseData.progress.current}/{courseData.progress.total}
+                    <Typography variant="bodyBase" color={colors.textSecondary}>
+                        GV: <Typography variant="bodyBase" style={{ fontFamily: 'BeVietnamPro-Bold', color: colors.textPrimary }}>{courseData.instructor}</Typography>
+                    </Typography>
+                </View>
+
+                <View style={[styles.progressCard, { backgroundColor: colors.surfaceGreen, borderColor: colors.primary }]}>
+                    <View style={styles.progressHeader}>
+                        <Typography variant="h3" color={colors.primary}>Khóa học đã hoàn thành!</Typography>
+                        <Typography variant="bodySmall" color={colors.primary} style={{ opacity: 0.8, marginTop: 2, marginBottom: 12 }}>
+                            Hoàn thành vào {courseData.completionDate}
+                        </Typography>
+                        <View style={[styles.rewardBadge, { backgroundColor: colors.surfaceYellow }]}>
+                            <Icon name="Coins" size={16} color={colors.warning} />
+                            <Typography variant="caption" color={colors.warning} style={{ fontFamily: 'BeVietnamPro-Bold', marginLeft: 4 }}>
+                                {courseData.rewardText}
                             </Typography>
                         </View>
                     </View>
                 </View>
 
-                {/* Danh sách Chương và Bài học (giữ nguyên cấu trúc) */}
                 {courseData.chapters.map((chapter) => (
                     <View key={chapter.id} style={styles.chapterContainer}>
-                        {/* Chapter Header */}
                         <View style={styles.chapterHeader}>
-                            <Typography variant="h3" color={colors.textPrimary} style={styles.chapterTitle}>
+                            <Typography variant="bodyLarge" color={colors.textPrimary} style={styles.chapterTitle}>
                                 {chapter.title}
                             </Typography>
-                            <Typography 
-                                variant="bodySmall" 
-                                color={chapter.isCompleted ? GREEN_THEME_COLOR : colors.textSecondary}
-                            >
+                            <Typography variant="bodySmall" color={colors.primary}>
                                 {chapter.progressText}
                             </Typography>
                         </View>
 
-                        {/* Lessons List */}
-                        {chapter.lessons.map((lesson) => {
-                            const stylesConfig = getLessonStyle(lesson.status);
-                            return (
-                                <TouchableOpacity 
-                                    key={lesson.id} 
-                                    activeOpacity={lesson.status === 'locked' ? 1 : 0.7}
-                                    style={[
-                                        styles.lessonCard, 
-                                        { borderLeftColor: stylesConfig.leftBorderColor }
-                                    ]}
-                                >
-                                    <View style={[styles.lessonIconContainer, { backgroundColor: stylesConfig.iconBg }]}>
-                                        <Icon name={stylesConfig.icon} size={20} color={stylesConfig.iconColor} />
-                                    </View>
-                                    
-                                    <View style={styles.lessonInfo}>
-                                        <Typography 
-                                            variant="h3" 
-                                            color={lesson.status === 'locked' ? colors.textSecondary : colors.textPrimary}
-                                        >
-                                            {lesson.title}
-                                        </Typography>
-                                        <Typography variant="bodySmall" color={colors.textSecondary}>
-                                            {lesson.meta}
-                                        </Typography>
-                                    </View>
+                        {chapter.lessons.map((lesson) => (
+                            <TouchableOpacity
+                                key={lesson.id}
+                                activeOpacity={0.7}
+                                style={[styles.lessonCard, { borderLeftColor: colors.primary, backgroundColor: colors.surface }]}
+                            >
+                                <View style={[styles.lessonIconContainer, { backgroundColor: colors.surfaceGreen }]}>
+                                    <Icon name="Check" size={20} color={colors.primary} />
+                                </View>
 
-                                    {lesson.status !== 'locked' && (
-                                        <Icon name="ChevronRight" size={20} color={colors.textSecondary} />
-                                    )}
-                                </TouchableOpacity>
-                            );
-                        })}
+                                <View style={styles.lessonInfo}>
+                                    <Typography variant="bodyBase" color={colors.textPrimary} style={{ fontFamily: 'BeVietnamPro-Bold', marginBottom: 2 }}>
+                                        {lesson.title}
+                                    </Typography>
+                                    <Typography variant="caption" color={colors.textSecondary}>
+                                        {lesson.meta}
+                                    </Typography>
+                                </View>
+                            </TouchableOpacity>
+                        ))}
                     </View>
                 ))}
             </ScrollView>
+
+            <View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, 20), backgroundColor: colors.background, borderTopColor: colors.border }]}>
+                <TouchableOpacity style={[styles.btnAction, { backgroundColor: colors.primary }]} activeOpacity={0.8}>
+                    <Icon name="Award" size={24} color="#FFF" />
+                    <Typography variant="buttonCTA" style={{ color: '#FFF', marginLeft: 8 }}>Xem chứng chỉ</Typography>
+                </TouchableOpacity>
+            </View>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 16,
-        paddingBottom: 16,
-    },
+    container: { flex: 1 },
+    header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingBottom: 16 },
     backButton: { padding: 4 },
-    headerTitleContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        flex: 1,
-    },
-    headerTitle: { fontWeight: '700' },
-    titleBadge: { marginLeft: 6 },
-    scrollContent: {
-        paddingHorizontal: 20,
-        paddingBottom: 40,
-    },
-    banner: {
-        width: '100%',
-        height: 180,
-        borderRadius: 0,
-        marginBottom: 20,
-    },
-    progressCard: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: 24,
-        borderRadius: 40,
-        borderWidth: 1.5,
-        marginBottom: 30,
-        ...Platform.select({
-            ios: {
-                shadowColor: "#000",
-                shadowOffset: { width: 0, height: 4 },
-                shadowOpacity: 0.1,
-                shadowRadius: 8,
-            },
-            android: {
-                elevation: 4,
-            },
-        }),
-    },
-    progressInfo: {
-        flex: 1,
-    },
-    progressPercent: {
-        fontSize: 22,
-        marginVertical: 4,
-    },
-    circularProgressContainer: {
-        width: 70,
-        height: 70,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    circularProgress: {
-        width: 70,
-        height: 70,
-        borderRadius: 35,
-        borderWidth: 6,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    chapterContainer: {
-        marginBottom: 24,
-    },
-    chapterHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 16,
-    },
-    chapterTitle: {
-        fontWeight: '700',
-    },
-    lessonCard: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 12,
-        paddingHorizontal: 16,
-        marginBottom: 12,
-        backgroundColor: '#FAFAFA',
-        borderLeftWidth: 4,
-        borderTopLeftRadius: 16,
-        borderBottomLeftRadius: 16,
-        borderTopRightRadius: 16,
-        borderBottomRightRadius: 16,
-    },
-    lessonIconContainer: {
-        width: 48,
-        height: 48,
-        borderRadius: 24,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginRight: 16,
-    },
-    lessonInfo: {
-        flex: 1,
-    },
+    headerTitle: { fontWeight: '700', maxWidth: '85%', textAlign: 'center' },
+
+    scrollContent: { paddingHorizontal: 20 },
+
+    banner: { width: '100%', height: 200, borderRadius: 24, marginBottom: 20 },
+    courseInfoContainer: { marginBottom: 24, paddingHorizontal: 8 },
+    courseTitleRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 4, alignSelf: 'flex-start' },
+    courseTitle: { fontFamily: 'Baloo2-Bold', fontSize: 26, lineHeight: 32, marginBottom: 0, marginRight: 8, flexShrink: 1 },
+
+    progressCard: { padding: 20, borderRadius: 24, borderWidth: 1.5, marginBottom: 30 },
+    progressHeader: { flexDirection: 'column', alignItems: 'flex-start' },
+    rewardBadge: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 12, alignSelf: 'flex-start' },
+
+    chapterContainer: { marginBottom: 24 },
+    chapterHeader: { flexDirection: 'column', alignItems: 'flex-start', marginBottom: 16, paddingHorizontal: 8 },
+    chapterTitle: { marginBottom: 4 },
+
+    lessonCard: { flexDirection: 'row', alignItems: 'center', paddingVertical: 16, paddingHorizontal: 16, marginBottom: 12, borderLeftWidth: 4, borderRadius: 16, elevation: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 4 },
+    lessonIconContainer: { width: 44, height: 44, borderRadius: 22, justifyContent: 'center', alignItems: 'center', marginRight: 16 },
+    lessonInfo: { flex: 1, paddingRight: 8 },
+
+    bottomBar: { position: 'absolute', bottom: 0, left: 0, right: 0, paddingTop: 16, paddingHorizontal: 20, borderTopWidth: 1 },
+    btnAction: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 16, borderRadius: 24, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 4 },
 });

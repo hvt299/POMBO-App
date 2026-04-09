@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity, Image, ScrollView, TextInput } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Typography } from '@/components/ui/Typography';
 import { Icon } from '@/components/ui/Icon';
@@ -14,30 +14,18 @@ export default function OngoingCoursesScreen() {
     const colors = Colors[colorScheme];
     const insets = useSafeAreaInsets();
 
-    // Dữ liệu mẫu cho danh sách khóa học
     const ongoingCourses = [
-        {
-            id: '1',
-            title: 'English for Travel',
-            progress: 0.65, // 65%
-            completedLessons: 12,
-            totalLessons: 18,
-            image: require('@/assets/images/dragon.png'), // Thay bằng ảnh của bạn
-            borderColor: colors.primary,
-        },
-        {
-            id: '2',
-            title: 'English for Travel',
-            progress: 0.65,
-            completedLessons: 12,
-            totalLessons: 18,
-            image: require('@/assets/images/dragon.png'),
-            borderColor: colors.primary,
-        }
+        { id: '1', title: 'English for Travel', instructor: 'Kurnia Majid', progress: 0.65, completedLessons: 12, totalLessons: 18, image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2071' },
+        { id: '2', title: 'IELTS Speaking Masterclass', instructor: 'Sarah Connor', progress: 0.3, completedLessons: 6, totalLessons: 20, image: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?q=80&w=2070' },
+        { id: '3', title: 'Business English for Beginners', instructor: 'David Smith', progress: 0.8, completedLessons: 24, totalLessons: 30, image: 'https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80&w=2069' },
+        { id: '4', title: 'Basic Grammar in Use', instructor: 'John Doe', progress: 0.1, completedLessons: 2, totalLessons: 20, image: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?q=80&w=1973' },
+        { id: '5', title: 'Daily Communication Skills', instructor: 'Emily Chen', progress: 0.45, completedLessons: 9, totalLessons: 20, image: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=2098' },
     ];
 
+    const themeColor = colors.secondary;
+
     return (
-        <View style={[styles.container, { backgroundColor: colors.background }]}>
+        <View style={[styles.container, { backgroundColor: colors.background, paddingBottom: insets.bottom }]}>
             {/* Header */}
             <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
                 <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
@@ -51,50 +39,39 @@ export default function OngoingCoursesScreen() {
 
             {/* Search Bar */}
             <View style={styles.searchContainer}>
-                <InputField
-                    placeholder="Tìm kiếm khóa học"
-                    placeholderTextColor={colors.textSecondary}
-                    style={[styles.searchInput, { color: colors.textPrimary }]}
-                />
+                <InputField placeholder="Tìm kiếm khóa học" leftIcon={"Search"} />
             </View>
 
-            <ScrollView 
-                contentContainerStyle={styles.scrollContent}
-                showsVerticalScrollIndicator={false}
-            >
+            <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
                 {ongoingCourses.map((course) => (
-                    <TouchableOpacity 
+                    <TouchableOpacity
+                        key={course.id}
+                        activeOpacity={0.8}
+                        style={[styles.courseCard, { backgroundColor: colors.surface, borderColor: colors.border }]}
                         onPress={() => router.push(`/(courses)/course-detail`)}
-                        key={course.id} 
-                        activeOpacity={0.9}
-                        style={[styles.courseCard, { borderColor: course.borderColor, backgroundColor: colors.surface }]}
                     >
-                        {/* Course Image */}
-                        <Image source={course.image} style={styles.courseImage} resizeMode="cover" />
-                        
-                        {/* Course Info */}
+                        <Image source={{ uri: course.image }} style={styles.courseImage} resizeMode="cover" />
+
                         <View style={styles.infoContainer}>
-                            <Typography variant="h3" color={colors.textPrimary} style={styles.courseTitle}>
+                            <Typography variant="bodyLarge" color={colors.textPrimary} style={styles.courseTitle} numberOfLines={2}>
                                 {course.title}
                             </Typography>
 
-                            {/* Progress Bar Container */}
-                            <View style={[styles.progressBarBg, { backgroundColor: colors.surfaceAlt }]}>
-                                <View 
-                                    style={[
-                                        styles.progressBarFill, 
-                                        { width: `${course.progress * 100}%`, backgroundColor: course.borderColor }
-                                    ]} 
-                                />
-                            </View>
+                            <Typography variant="caption" color={colors.textSecondary} style={{ marginBottom: 4 }}>
+                                GV: <Typography variant="caption" style={{ fontFamily: 'BeVietnamPro-Medium', color: colors.primary }}>{course.instructor}</Typography>
+                            </Typography>
 
-                            {/* Progress Stats */}
-                            <View style={styles.statsRow}>
-                                <Typography variant="bodySmall" color={colors.textSecondary}>
-                                    {Math.round(course.progress * 100)}% Hoàn thành
-                                </Typography>
-                                <Typography variant="bodySmall" color={colors.textSecondary}>
-                                    {course.completedLessons}/{course.totalLessons} Bài học
+                            <Typography variant="caption" color={colors.textSecondary} style={{ marginBottom: 8 }}>
+                                {course.completedLessons} / {course.totalLessons} Bài học
+                            </Typography>
+
+                            {/* Progress Bar với màu Secondary */}
+                            <View style={styles.progressRow}>
+                                <View style={[styles.progressBg, { backgroundColor: colors.surfaceAlt }]}>
+                                    <View style={[styles.progressFill, { width: `${course.progress * 100}%`, backgroundColor: themeColor }]} />
+                                </View>
+                                <Typography variant="tiny" color={themeColor} style={{ marginLeft: 8, fontFamily: 'BeVietnamPro-Bold' }}>
+                                    {Math.round(course.progress * 100)}%
                                 </Typography>
                             </View>
                         </View>
@@ -106,84 +83,20 @@ export default function OngoingCoursesScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: 16,
-        marginBottom: 10,
-    },
+    container: { flex: 1 },
+    header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, marginBottom: 10 },
     backButton: { padding: 4 },
     headerTitle: { fontWeight: '700' },
-    searchContainer: {
-        paddingHorizontal: 24,
-        marginBottom: 20,
-    },
-    searchWrapper: {
-        height: 45,
-        borderWidth: 1,
-        borderRadius: 25,
-        paddingHorizontal: 20,
-        justifyContent: 'center',
-    },
-    searchInput: {
-        fontSize: 14,
-        fontFamily: 'BeVietnamPro-Regular', // Đảm bảo font này đã được load
-    },
-    scrollContent: {
-        paddingHorizontal: 24,
-        paddingBottom: 30,
-        gap: 20,
-    },
-    courseCard: {
-        width: '100%',
-        borderRadius: 40,
-        borderWidth: 2,
-        overflow: 'hidden', // Để ảnh không tràn ra khỏi border radius
-        paddingBottom: 20,
-        // Shadow
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 4,
-    },
-    courseImage: {
-        width: '60%',
-        height: 140,
-        alignSelf: 'center',
-        marginTop: 20,
-        borderRadius: 12,
-    },
-    infoContainer: {
-        paddingHorizontal: 25,
-        marginTop: 15,
-    },
-    courseTitle: {
-        textAlign: 'center',
-        marginBottom: 15,
-    },
-    progressBarBg: {
-        height: 10,
-        width: '100%',
-        borderRadius: 5,
-        overflow: 'hidden',
-        marginBottom: 10,
-    },
-    progressBarFill: {
-        height: '100%',
-        borderRadius: 5,
-    },
-    statsRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginTop: 5,
-    },
-    cardText: {
-        fontSize: 18,
-        fontWeight: '600',
-    },
+    searchContainer: { paddingHorizontal: 20, marginBottom: 16 },
+
+    scrollContent: { paddingHorizontal: 20, paddingTop: 8, gap: 16 },
+
+    courseCard: { flexDirection: 'row', padding: 16, borderRadius: 24, borderWidth: 1.5, alignItems: 'center' },
+    courseImage: { width: 80, height: 80, borderRadius: 16 },
+    infoContainer: { flex: 1, marginLeft: 16, justifyContent: 'center' },
+    courseTitle: { fontFamily: 'BeVietnamPro-Bold', marginBottom: 2, lineHeight: 20 },
+
+    progressRow: { flexDirection: 'row', alignItems: 'center' },
+    progressBg: { flex: 1, height: 6, borderRadius: 3, overflow: 'hidden' },
+    progressFill: { height: '100%', borderRadius: 3 },
 });
