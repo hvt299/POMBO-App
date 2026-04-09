@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Typography } from '@/components/ui/Typography';
@@ -7,6 +7,7 @@ import { Colors } from '@/constants/theme';
 import { useColorScheme } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { InputField } from '@/components/ui/InputField';
+import { ALL_COURSES } from '@/constants/courses';
 
 export default function CompletedCoursesScreen() {
     const router = useRouter();
@@ -14,19 +15,16 @@ export default function CompletedCoursesScreen() {
     const colors = Colors[colorScheme];
     const insets = useSafeAreaInsets();
 
-    const completedCourses = [
-        { id: '1', title: 'Grammar Essentials', instructor: 'John Doe', completionDate: '12/05/2023', rewardAmount: 200, rewardType: 'coin', image: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?q=80&w=1973' },
-        { id: '2', title: 'Basic Vocabulary', instructor: 'Emily Chen', completionDate: '01/04/2023', rewardAmount: 50, rewardType: 'gem', image: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=2098' },
-        { id: '3', title: 'TOEIC Listening Practice', instructor: 'Michael Bay', completionDate: '15/08/2023', rewardAmount: 300, rewardType: 'coin', image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2071' },
-        { id: '4', title: 'Advanced Reading Comprehension', instructor: 'Sarah Connor', completionDate: '22/10/2023', rewardAmount: 100, rewardType: 'gem', image: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?q=80&w=2070' },
-        { id: '5', title: 'Writing for IELTS Task 1', instructor: 'David Smith', completionDate: '05/12/2023', rewardAmount: 500, rewardType: 'coin', image: 'https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80&w=2069' }
-    ];
+    const [searchQuery, setSearchQuery] = useState('');
 
-    const themeColor = colors.primary;
+    const completedCourses = ALL_COURSES.filter(c => c.status === 'completed');
+
+    const filteredCourses = completedCourses.filter(c =>
+        c.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background, paddingBottom: insets.bottom }]}>
-            {/* Header */}
             <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
                 <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
                     <Icon name="ChevronLeft" size={28} color={colors.textPrimary} />
@@ -37,13 +35,17 @@ export default function CompletedCoursesScreen() {
                 <View style={{ width: 28 }} />
             </View>
 
-            {/* Search Bar */}
             <View style={styles.searchContainer}>
-                <InputField placeholder="Tìm kiếm khóa học" leftIcon={"Search"} />
+                <InputField
+                    placeholder="Tìm kiếm khóa học"
+                    leftIcon={"Search" as any}
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                />
             </View>
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-                {completedCourses.map((course) => {
+                {filteredCourses.map((course) => {
                     const isGem = course.rewardType === 'gem';
                     const rewardBgColor = isGem ? colors.surfacePink : colors.surfaceYellow;
                     const rewardTextColor = isGem ? colors.rankMaster : colors.warning;
@@ -54,7 +56,10 @@ export default function CompletedCoursesScreen() {
                             key={course.id}
                             activeOpacity={0.8}
                             style={[styles.courseCard, { backgroundColor: colors.surface, borderColor: colors.border }]}
-                            onPress={() => router.push(`/(courses)/completed-courses-detail`)}
+                            onPress={() => router.push({
+                                pathname: '/(courses)/completed-course-detail',
+                                params: { id: course.id }
+                            })}
                         >
                             <Image source={{ uri: course.image }} style={styles.courseImage} resizeMode="cover" />
 
@@ -64,7 +69,7 @@ export default function CompletedCoursesScreen() {
                                 </Typography>
 
                                 <Typography variant="caption" color={colors.textSecondary} style={{ marginBottom: 4 }}>
-                                    GV: <Typography variant="caption" style={{ fontFamily: 'BeVietnamPro-Medium', color: colors.primary }}>{course.instructor}</Typography>
+                                    GV: <Typography variant="caption" style={{ fontFamily: 'BeVietnamPro-Medium', color: colors.textPrimary }}>{course.instructor}</Typography>
                                 </Typography>
 
                                 <Typography variant="caption" color={colors.textSecondary} style={{ marginBottom: 12 }}>
@@ -72,16 +77,17 @@ export default function CompletedCoursesScreen() {
                                 </Typography>
 
                                 <View style={styles.actionRow}>
-                                    {/* Nhóm Badge "Đã xong" và "Phần thưởng" */}
                                     <View style={styles.badgeGroup}>
                                         <View style={[styles.badge, { backgroundColor: colors.surfaceGreen }]}>
-                                            <Icon name="CheckCircle" size={12} color={themeColor} />
-                                            <Typography variant="tiny" color={themeColor} style={{ marginLeft: 4, fontFamily: 'BeVietnamPro-Bold' }}>Đã xong</Typography>
+                                            <Icon name="CheckCircle" size={12} color={colors.primary} />
+                                            <Typography variant="tiny" color={colors.primary} style={{ marginLeft: 4, fontFamily: 'BeVietnamPro-Bold' }}>Đã xong</Typography>
                                         </View>
-                                        <View style={[styles.badge, { backgroundColor: rewardBgColor }]}>
-                                            <Icon name={rewardIcon} size={12} color={rewardTextColor} />
-                                            <Typography variant="tiny" color={rewardTextColor} style={{ marginLeft: 4, fontFamily: 'BeVietnamPro-Bold' }}>+{course.rewardAmount}</Typography>
-                                        </View>
+                                        {course.rewardAmount && (
+                                            <View style={[styles.badge, { backgroundColor: rewardBgColor }]}>
+                                                <Icon name={rewardIcon as any} size={12} color={rewardTextColor} />
+                                                <Typography variant="tiny" color={rewardTextColor} style={{ marginLeft: 4, fontFamily: 'BeVietnamPro-Bold' }}>+{course.rewardAmount}</Typography>
+                                            </View>
+                                        )}
                                     </View>
 
                                     <View style={styles.reviewBtn}>
@@ -93,6 +99,11 @@ export default function CompletedCoursesScreen() {
                         </TouchableOpacity>
                     );
                 })}
+                {filteredCourses.length === 0 && (
+                    <Typography variant="bodyBase" color={colors.textSecondary} style={{ textAlign: 'center', marginTop: 40 }}>
+                        Không tìm thấy khóa học nào.
+                    </Typography>
+                )}
             </ScrollView>
         </View>
     );
@@ -111,9 +122,9 @@ const styles = StyleSheet.create({
     courseImage: { width: 80, height: 80, borderRadius: 16 },
     infoContainer: { flex: 1, marginLeft: 16, justifyContent: 'center' },
     courseTitle: { fontFamily: 'BeVietnamPro-Bold', marginBottom: 2, lineHeight: 20 },
-
+    
     actionRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-    badgeGroup: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+    badgeGroup: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
     badge: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 6, paddingVertical: 4, borderRadius: 6 },
     reviewBtn: { flexDirection: 'row', alignItems: 'center' }
 });

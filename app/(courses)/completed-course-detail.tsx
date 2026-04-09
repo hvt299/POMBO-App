@@ -1,50 +1,23 @@
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Typography } from '@/components/ui/Typography';
 import { Icon } from '@/components/ui/Icon';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ALL_COURSES } from '@/constants/courses';
 
 export default function CompletedCourseDetailScreen() {
     const router = useRouter();
+    const { id } = useLocalSearchParams();
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
     const insets = useSafeAreaInsets();
 
-    const courseData = {
-        title: 'Grammar & Vocab Essentials',
-        instructor: 'John Doe',
-        completionDate: '12/05/2023',
-        rewardText: "+200 Coins",
-        banner: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?q=80&w=1973',
-        progress: { percent: 100, current: 6, total: 6 },
-        chapters: [
-            {
-                id: 'c1',
-                title: 'Chương 1: Tense & Time',
-                progressText: '3/3 Bài học',
-                isCompleted: true,
-                lessons: [
-                    { id: 'l1', title: 'Từ vựng: Words expressing Time', meta: '10 mins • Từ vựng', status: 'completed' },
-                    { id: 'l2', title: 'Từ vựng: Adverbs of Frequency', meta: '15 mins • Từ vựng', status: 'completed' },
-                    { id: 't1', title: 'Bài Test: Ôn tập từ chỉ thời gian', meta: '20 mins • Ôn tập', status: 'completed' },
-                ]
-            },
-            {
-                id: 'c2',
-                title: 'Chương 2: Work & Jobs',
-                progressText: '3/3 Bài học',
-                isCompleted: true,
-                lessons: [
-                    { id: 'l3', title: 'Từ vựng: Professions & Workplaces', meta: '12 mins • Từ vựng', status: 'completed' },
-                    { id: 'l4', title: 'Từ vựng: Office Equipment', meta: '10 mins • Từ vựng', status: 'completed' },
-                    { id: 't2', title: 'Bài Test: Ôn tập từ vựng Công việc', meta: '20 mins • Ôn tập', status: 'completed' },
-                ]
-            }
-        ]
-    };
+    const courseData = ALL_COURSES.find(c => c.id === id) || ALL_COURSES.find(c => c.status === 'completed');
+
+    if (!courseData) return null;
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -86,19 +59,21 @@ export default function CompletedCourseDetailScreen() {
                         <Typography variant="bodySmall" color={colors.primary} style={{ opacity: 0.8, marginTop: 2, marginBottom: 12 }}>
                             Hoàn thành vào {courseData.completionDate}
                         </Typography>
-                        <View style={[styles.rewardBadge, { backgroundColor: colors.surfaceYellow }]}>
-                            <Icon name="Coins" size={16} color={colors.warning} />
-                            <Typography variant="caption" color={colors.warning} style={{ fontFamily: 'BeVietnamPro-Bold', marginLeft: 4 }}>
-                                {courseData.rewardText}
-                            </Typography>
-                        </View>
+                        {courseData.rewardText && (
+                            <View style={[styles.rewardBadge, { backgroundColor: colors.surfaceYellow }]}>
+                                <Icon name={courseData.rewardType === 'gem' ? 'Gem' : 'Coins'} size={16} color={colors.warning} />
+                                <Typography variant="caption" color={colors.warning} style={{ fontFamily: 'BeVietnamPro-Bold', marginLeft: 4 }}>
+                                    {courseData.rewardText}
+                                </Typography>
+                            </View>
+                        )}
                     </View>
                 </View>
 
                 {courseData.chapters.map((chapter) => (
                     <View key={chapter.id} style={styles.chapterContainer}>
                         <View style={styles.chapterHeader}>
-                            <Typography variant="bodyLarge" color={colors.textPrimary} style={styles.chapterTitle}>
+                            <Typography variant="h3" color={colors.textPrimary} style={styles.chapterTitle}>
                                 {chapter.title}
                             </Typography>
                             <Typography variant="bodySmall" color={colors.primary}>
@@ -111,6 +86,10 @@ export default function CompletedCourseDetailScreen() {
                                 key={lesson.id}
                                 activeOpacity={0.7}
                                 style={[styles.lessonCard, { borderLeftColor: colors.primary, backgroundColor: colors.surface }]}
+                                onPress={() => {
+                                    if (lesson.type === 'vocabulary') router.push('/vocabulary-list' as any);
+                                    else if (lesson.type === 'test') router.push('/test-result' as any);
+                                }}
                             >
                                 <View style={[styles.lessonIconContainer, { backgroundColor: colors.surfaceGreen }]}>
                                     <Icon name="Check" size={20} color={colors.primary} />
@@ -131,7 +110,7 @@ export default function CompletedCourseDetailScreen() {
             </ScrollView>
 
             <View style={[styles.bottomBar, { paddingBottom: Math.max(insets.bottom, 20), backgroundColor: colors.background, borderTopColor: colors.border }]}>
-                <TouchableOpacity style={[styles.btnAction, { backgroundColor: colors.primary }]} activeOpacity={0.8}>
+                <TouchableOpacity style={[styles.btnAction, { backgroundColor: colors.primary }]} activeOpacity={0.8} onPress={() => router.push('/certificate' as any)}>
                     <Icon name="Award" size={24} color="#FFF" />
                     <Typography variant="buttonCTA" style={{ color: '#FFF', marginLeft: 8 }}>Xem chứng chỉ</Typography>
                 </TouchableOpacity>
@@ -144,7 +123,7 @@ const styles = StyleSheet.create({
     container: { flex: 1 },
     header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingBottom: 16 },
     backButton: { padding: 4 },
-    headerTitle: { fontWeight: '700', maxWidth: '85%', textAlign: 'center' },
+    headerTitle: { fontWeight: '700', flex: 1, textAlign: 'center' },
 
     scrollContent: { paddingHorizontal: 20 },
 

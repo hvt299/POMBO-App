@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Typography } from '@/components/ui/Typography';
@@ -7,6 +7,7 @@ import { Colors } from '@/constants/theme';
 import { useColorScheme } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { InputField } from '@/components/ui/InputField';
+import { ALL_COURSES } from '@/constants/courses';
 
 export default function OngoingCoursesScreen() {
     const router = useRouter();
@@ -14,19 +15,16 @@ export default function OngoingCoursesScreen() {
     const colors = Colors[colorScheme];
     const insets = useSafeAreaInsets();
 
-    const ongoingCourses = [
-        { id: '1', title: 'English for Travel', instructor: 'Kurnia Majid', progress: 0.65, completedLessons: 12, totalLessons: 18, image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2071' },
-        { id: '2', title: 'IELTS Speaking Masterclass', instructor: 'Sarah Connor', progress: 0.3, completedLessons: 6, totalLessons: 20, image: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?q=80&w=2070' },
-        { id: '3', title: 'Business English for Beginners', instructor: 'David Smith', progress: 0.8, completedLessons: 24, totalLessons: 30, image: 'https://images.unsplash.com/photo-1573164713988-8665fc963095?q=80&w=2069' },
-        { id: '4', title: 'Basic Grammar in Use', instructor: 'John Doe', progress: 0.1, completedLessons: 2, totalLessons: 20, image: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?q=80&w=1973' },
-        { id: '5', title: 'Daily Communication Skills', instructor: 'Emily Chen', progress: 0.45, completedLessons: 9, totalLessons: 20, image: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=2098' },
-    ];
+    const [searchQuery, setSearchQuery] = useState('');
 
-    const themeColor = colors.secondary;
+    const ongoingCourses = ALL_COURSES.filter(c => c.status === 'ongoing');
+
+    const filteredCourses = ongoingCourses.filter(c =>
+        c.title.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background, paddingBottom: insets.bottom }]}>
-            {/* Header */}
             <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
                 <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
                     <Icon name="ChevronLeft" size={28} color={colors.textPrimary} />
@@ -37,18 +35,25 @@ export default function OngoingCoursesScreen() {
                 <View style={{ width: 28 }} />
             </View>
 
-            {/* Search Bar */}
             <View style={styles.searchContainer}>
-                <InputField placeholder="Tìm kiếm khóa học" leftIcon={"Search"} />
+                <InputField
+                    placeholder="Tìm kiếm khóa học"
+                    leftIcon={"Search" as any}
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                />
             </View>
 
             <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-                {ongoingCourses.map((course) => (
+                {filteredCourses.map((course) => (
                     <TouchableOpacity
                         key={course.id}
                         activeOpacity={0.8}
                         style={[styles.courseCard, { backgroundColor: colors.surface, borderColor: colors.border }]}
-                        onPress={() => router.push(`/(courses)/course-detail`)}
+                        onPress={() => router.push({
+                            pathname: '/(courses)/course-detail',
+                            params: { id: course.id }
+                        })}
                     >
                         <Image source={{ uri: course.image }} style={styles.courseImage} resizeMode="cover" />
 
@@ -58,25 +63,29 @@ export default function OngoingCoursesScreen() {
                             </Typography>
 
                             <Typography variant="caption" color={colors.textSecondary} style={{ marginBottom: 4 }}>
-                                GV: <Typography variant="caption" style={{ fontFamily: 'BeVietnamPro-Medium', color: colors.primary }}>{course.instructor}</Typography>
+                                GV: <Typography variant="caption" style={{ fontFamily: 'BeVietnamPro-Medium', color: colors.textPrimary }}>{course.instructor}</Typography>
                             </Typography>
 
                             <Typography variant="caption" color={colors.textSecondary} style={{ marginBottom: 8 }}>
                                 {course.completedLessons} / {course.totalLessons} Bài học
                             </Typography>
 
-                            {/* Progress Bar với màu Secondary */}
                             <View style={styles.progressRow}>
                                 <View style={[styles.progressBg, { backgroundColor: colors.surfaceAlt }]}>
-                                    <View style={[styles.progressFill, { width: `${course.progress * 100}%`, backgroundColor: themeColor }]} />
+                                    <View style={[styles.progressFill, { width: `${course.progress * 100}%`, backgroundColor: colors.secondary }]} />
                                 </View>
-                                <Typography variant="tiny" color={themeColor} style={{ marginLeft: 8, fontFamily: 'BeVietnamPro-Bold' }}>
+                                <Typography variant="tiny" color={colors.secondary} style={{ marginLeft: 8, fontFamily: 'BeVietnamPro-Bold' }}>
                                     {Math.round(course.progress * 100)}%
                                 </Typography>
                             </View>
                         </View>
                     </TouchableOpacity>
                 ))}
+                {filteredCourses.length === 0 && (
+                    <Typography variant="bodyBase" color={colors.textSecondary} style={{ textAlign: 'center', marginTop: 40 }}>
+                        Không tìm thấy khóa học nào.
+                    </Typography>
+                )}
             </ScrollView>
         </View>
     );
@@ -95,7 +104,7 @@ const styles = StyleSheet.create({
     courseImage: { width: 80, height: 80, borderRadius: 16 },
     infoContainer: { flex: 1, marginLeft: 16, justifyContent: 'center' },
     courseTitle: { fontFamily: 'BeVietnamPro-Bold', marginBottom: 2, lineHeight: 20 },
-
+    
     progressRow: { flexDirection: 'row', alignItems: 'center' },
     progressBg: { flex: 1, height: 6, borderRadius: 3, overflow: 'hidden' },
     progressFill: { height: '100%', borderRadius: 3 },

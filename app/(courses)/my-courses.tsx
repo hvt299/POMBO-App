@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, TouchableOpacity, Image, ScrollView, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Typography } from '@/components/ui/Typography';
@@ -7,6 +7,7 @@ import { Colors } from '@/constants/theme';
 import { useColorScheme } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { InputField } from '@/components/ui/InputField';
+import { ALL_COURSES } from '@/constants/courses';
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = width * 0.7;
@@ -16,16 +17,13 @@ export default function MyCoursesScreen() {
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
     const insets = useSafeAreaInsets();
+    const [searchQuery, setSearchQuery] = useState('');
 
-    const ongoingCourses = [
-        { id: '1', title: 'English for Travel', progress: 0.65, image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2071' },
-        { id: '2', title: 'IELTS Speaking', progress: 0.3, image: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?q=80&w=2070' },
-    ];
+    const ongoingCourses = ALL_COURSES.filter(c => c.status === 'ongoing');
+    const completedCourses = ALL_COURSES.filter(c => c.status === 'completed');
 
-    const completedCourses = [
-        { id: '3', title: 'Grammar Essentials', date: '12/05/2023', image: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?q=80&w=1973' },
-        { id: '4', title: 'Basic Vocabulary', date: '01/04/2023', image: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?q=80&w=2098' },
-    ];
+    const filteredOngoing = ongoingCourses.filter(c => c.title.toLowerCase().includes(searchQuery.toLowerCase()));
+    const filteredCompleted = completedCourses.filter(c => c.title.toLowerCase().includes(searchQuery.toLowerCase()));
 
     const CourseSection = ({ title, data, onSeeAll, isCompleted = false }: any) => {
         const themeColor = isCompleted ? colors.primary : colors.secondary;
@@ -46,17 +44,18 @@ export default function MyCoursesScreen() {
                             key={item.id}
                             style={[styles.horizontalCard, { backgroundColor: colors.surface, borderColor: themeColor }]}
                             activeOpacity={0.8}
-                            onPress={() => router.push(isCompleted ? '/completed-courses-detail' : '/course-detail')}
+                            onPress={() => router.push({
+                                pathname: isCompleted ? '/completed-course-detail' : '/course-detail',
+                                params: { id: item.id }
+                            })}
                         >
                             <Image source={{ uri: item.image }} style={styles.cardImage} resizeMode="cover" />
-
                             <Typography variant="bodyBase" color={colors.textPrimary} style={styles.cardTitle} numberOfLines={1}>
                                 {item.title}
                             </Typography>
-
                             {isCompleted ? (
                                 <Typography variant="tiny" color={colors.textSecondary}>
-                                    Hoàn thành vào {item.date}
+                                    Hoàn thành vào {item.completionDate}
                                 </Typography>
                             ) : (
                                 <View style={styles.progressRow}>
@@ -75,27 +74,24 @@ export default function MyCoursesScreen() {
 
     return (
         <View style={[styles.container, { backgroundColor: colors.background, paddingBottom: insets.bottom }]}>
-            {/* Header */}
             <View style={[styles.header, { paddingTop: insets.top + 10 }]}>
                 <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
                     <Icon name="ChevronLeft" size={28} color={colors.textPrimary} />
                 </TouchableOpacity>
-                <Typography variant="h2" color={colors.textPrimary} style={styles.headerTitle}>
-                    Khóa học của tôi
-                </Typography>
+                <Typography variant="h2" color={colors.textPrimary} style={styles.headerTitle}>Khóa học của tôi</Typography>
                 <View style={{ width: 28 }} />
             </View>
 
-            {/* Search Bar */}
             <View style={styles.searchContainer}>
                 <InputField
                     placeholder="Tìm kiếm khóa học của tôi"
                     leftIcon={"Search"}
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
                 />
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false}>
-                {/* Banner Khám phá */}
                 <TouchableOpacity
                     style={[styles.miniBanner, { backgroundColor: colors.surfaceBlue, borderColor: colors.secondary }]}
                     activeOpacity={0.8}
@@ -110,20 +106,8 @@ export default function MyCoursesScreen() {
                     <Icon name="ArrowRightCircle" size={24} color={colors.secondary} />
                 </TouchableOpacity>
 
-                {/* Danh sách ngang */}
-                <CourseSection
-                    title="Khóa học đang học"
-                    data={ongoingCourses}
-                    onSeeAll={() => router.push('/ongoing-courses')}
-                />
-
-                <CourseSection
-                    title="Khóa học đã hoàn thành"
-                    data={completedCourses}
-                    onSeeAll={() => router.push('/completed-courses')}
-                    isCompleted
-                />
-
+                <CourseSection title="Khóa học đang học" data={filteredOngoing} onSeeAll={() => router.push('/ongoing-courses')} />
+                <CourseSection title="Khóa học đã hoàn thành" data={filteredCompleted} onSeeAll={() => router.push('/completed-courses')} isCompleted />
                 <View style={{ height: 40 }} />
             </ScrollView>
         </View>
@@ -139,14 +123,14 @@ const styles = StyleSheet.create({
 
     miniBanner: { flexDirection: 'row', alignItems: 'center', marginHorizontal: 20, padding: 16, borderRadius: 20, borderWidth: 1, marginBottom: 24 },
     bannerInfo: { flex: 1 },
-
+    
     sectionContainer: { marginBottom: 30 },
     sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, marginBottom: 16 },
     horizontalList: { paddingHorizontal: 20, gap: 16 },
     horizontalCard: { width: CARD_WIDTH, padding: 16, borderRadius: 24, borderWidth: 1.5 },
     cardImage: { width: '100%', height: 120, borderRadius: 12, marginBottom: 12 },
     cardTitle: { fontFamily: 'BeVietnamPro-Bold', marginBottom: 8 },
-
+    
     progressRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
     progressBg: { flex: 1, height: 6, borderRadius: 3, overflow: 'hidden' },
     progressFill: { height: '100%' },
