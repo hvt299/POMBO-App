@@ -98,7 +98,8 @@ export default function SearchScreen() {
 
         if (debouncedQuery.length > 1 && results.length === 0) {
             return (
-                <EmptyState message="Từ vựng này tôi không tìm thấy trong sổ tay của bạn, đừng lo lắng..." />
+                <EmptyState message={`Từ vựng này tôi không tìm thấy trong sổ tay của bạn, đừng lo lắng
+Hãy vào cửa hàng mở gói từ vựng ngay, Hôm nay sẽ là một ngày may mắn của bạn.`} />
             );
         }
 

@@ -73,7 +73,11 @@ export const VocabularyItem = ({ data, isSelectionMode, onLongPress, onSelect, s
 
             {isExpanded && (
                 <View style={styles.detailSection}>
-                    <Typography variant="caption" color={colors.primary} style={{marginBottom: 4}}>
+                    <Typography 
+                        variant="caption" 
+                        color={data.isReviewing ? colors.primary : colors.secondary} 
+                        style={{marginBottom: 4}}
+                    >
                         {data.phonetic}
                     </Typography>
                     <Typography variant="bodyBase" style={{marginBottom: 8}}>
