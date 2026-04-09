@@ -115,7 +115,7 @@ export default function StoreScreen() {
                             <StoreCard
                                 subtitle="Cửa hàng" title="Khóa học" actionText="Khám phá ngay"
                                 icon="GraduationCap" color={colors.secondary} bgColor={colors.surfaceBlue}
-                                onPress={() => { }}
+                                onPress={() => router.push('/course-shop')}
                             />
                         </View>
                     </View>
