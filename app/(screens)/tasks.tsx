@@ -18,29 +18,19 @@ import {
   Target, 
   CheckCircle2, 
   Headphones,
-  Crown,  // Icon cho thành tựu
-  Star,   // Icon cho thành tựu
-  Trophy  // Icon cho thành tựu
+  Crown,
+  Star,
+  Trophy
 } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { Colors } from '../../src/constants/theme';
 import { Typography } from '@/components/ui/Typography';
+import { useTaskStore } from '../../src/store/useTaskStore';
 
-// --- MOCK DATA ---
-const INITIAL_TASKS = [
-  { id: 1, title: 'Học 50 từ vựng mới', desc: 'Hoàn thành bài học từ vựng bất kỳ.', progress: 50, target: 50, coinReward: 20, status: 'claimable', icon: BookOpen },
-  { id: 2, title: 'Luyện nghe 15 phút', desc: 'Nghe audio hoặc xem video bài giảng.', progress: 5, target: 15, coinReward: 15, status: 'in_progress', icon: Headphones },
-  { id: 3, title: 'Đạt chuỗi 7 ngày học', desc: 'Giữ streak không bị đứt đoạn.', progress: 7, target: 7, coinReward: 50, status: 'claimed', icon: Flame },
-  { id: 4, title: 'Hoàn thành bài test tuần', desc: 'Đạt tối thiểu 80% điểm bài test.', progress: 0, target: 1, coinReward: 100, status: 'in_progress', icon: Target },
-];
-
-const INITIAL_ACHIEVEMENTS = [
-  { id: 101, title: 'Khởi đầu nan', desc: 'Hoàn thành 10 nhiệm vụ hằng ngày đầu tiên.', progress: 10, target: 10, coinReward: 200, status: 'claimable', icon: Star },
-  { id: 102, title: 'Bậc thầy từ vựng', desc: 'Học tích lũy 1,000 từ vựng.', progress: 450, target: 1000, coinReward: 1500, status: 'in_progress', icon: BookOpen },
-  { id: 103, title: 'Chăm chỉ tột bậc', desc: 'Đạt chuỗi học (streak) 30 ngày liên tục.', progress: 7, target: 30, coinReward: 1000, status: 'in_progress', icon: Flame },
-  { id: 104, title: 'Kẻ thống trị', desc: 'Đạt Top 1 Bảng xếp hạng tuần.', progress: 1, target: 1, coinReward: 2000, status: 'claimed', icon: Crown },
-  { id: 105, title: 'Cao thủ cày cuốc', desc: 'Tích lũy tổng cộng 10,000 XP.', progress: 8500, target: 10000, coinReward: 5000, status: 'in_progress', icon: Trophy },
-];
+// Map string icon names to Lucide components
+const IconMap: Record<string, any> = {
+  BookOpen, Headphones, Flame, Target, Star, Crown, Trophy
+};
 
 export default function TasksScreen() {
   const router = useRouter();
@@ -50,11 +40,8 @@ export default function TasksScreen() {
   const styles = useMemo(() => getStyles(colors), [colors]);
 
   const [activeTab, setActiveTab] = useState<'daily' | 'achievements'>('daily');
-  const [totalCoins, setTotalCoins] = useState(1250);
   
-  // Quản lý state cho cả 2 danh sách
-  const [tasks, setTasks] = useState(INITIAL_TASKS);
-  const [achievements, setAchievements] = useState(INITIAL_ACHIEVEMENTS);
+  const { tasks, achievements, totalCoins, claimReward } = useTaskStore();
 
   // --- ANIMATION VALUES ---
   const coinScale = useRef(new Animated.Value(1)).current;
@@ -63,12 +50,8 @@ export default function TasksScreen() {
   const [floatingText, setFloatingText] = useState('');
 
   const handleClaim = (id: number, coinReward: number, type: 'daily' | 'achievements') => {
-    // 1. Cập nhật trạng thái 'claimed' cho đúng danh sách đang thao tác
-    if (type === 'daily') {
-      setTasks(prev => prev.map(item => item.id === id ? { ...item, status: 'claimed' } : item));
-    } else {
-      setAchievements(prev => prev.map(item => item.id === id ? { ...item, status: 'claimed' } : item));
-    }
+    // 1. Cập nhật trạng thái thông qua Zustand store
+    claimReward(id, coinReward, type);
 
     // 2. Chạy animation
     setFloatingText(`+${coinReward}`);
@@ -90,11 +73,6 @@ export default function TasksScreen() {
     ]).start(() => {
       floatingTranslateY.setValue(0);
     });
-
-    // 3. Cộng tiền
-    setTimeout(() => {
-      setTotalCoins(prev => prev + coinReward);
-    }, 200);
   };
 
   // Helper lấy màu dựa trên icon cho cả Task và Achievement
@@ -183,8 +161,8 @@ export default function TasksScreen() {
           </Text>
         </View>
 
-        {currentDataList.map((item, index) => {
-          const IconComponent = item.icon;
+        {currentDataList.map((item: any, index: number) => {
+          const IconComponent = IconMap[item.icon] || BookOpen;
           const { color, bg } = getIconColors(index);
           const progressPercent = Math.min((item.progress / item.target) * 100, 100);
 
