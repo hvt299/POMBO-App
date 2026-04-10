@@ -1,18 +1,16 @@
 import React, { useMemo } from 'react';
 import { useRouter } from 'expo-router';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  ScrollView, 
-  Image, 
-  TouchableOpacity, 
-  Dimensions, 
-  DimensionValue,
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+  Dimensions,
   useColorScheme
 } from 'react-native';
-// Thay thế toàn bộ bằng lucide-react-native
-import { Bell, Flame, Zap, Crown, ChevronLeft, BookOpen, Headphones, Target } from 'lucide-react-native'; 
+import { Bell, Flame, Zap, Crown, ChevronLeft, BookOpen, Headphones, Target } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors } from '../../src/constants/theme';
 import { Typography } from '@/components/ui/Typography';
@@ -30,7 +28,7 @@ export default function EnhancedDashboardScreen() {
   const { tasks, claimReward } = useTaskStore();
   const completedTasks = tasks.filter(t => t.status === 'claimed' || t.progress >= t.target).length;
   const totalTasks = tasks.length;
-  const top2Tasks = tasks.slice(0, 2); // Chỉ lấy 2 nhiệm vụ đầu tiên để hiển thị ngoài dashbord
+  const top2Tasks = tasks.slice(0, 2);
 
   const IconMap: Record<string, any> = {
     BookOpen, Headphones, Flame, Target
@@ -39,32 +37,33 @@ export default function EnhancedDashboardScreen() {
   const CHART_DATA = useMemo(() => {
     const data = [];
     const today = new Date();
-    // Số từ vựng học được giả lập cho 5 ngày gần nhất
-    const mockWords = [5, 15, 8, 4, 12]; 
-    
+    const mockWords = [5, 15, 8, 4, 12];
+
     for (let i = 4; i >= 0; i--) {
       const d = new Date();
       d.setDate(today.getDate() - i);
-      const dayOfWeek = d.getDay(); // 0 là Chủ nhật, 1 là T2,...
+      const dayOfWeek = d.getDay();
       const dayStr = dayOfWeek === 0 ? 'CN' : `T${dayOfWeek + 1}`;
-      
+
       data.push({
         day: dayStr,
         words: mockWords[4 - i],
-        active: i === 0 // Đánh dấu ngày hiện tại (i = 0 là hôm nay)
+        active: i === 0
       });
     }
     return data;
   }, []);
 
   const LEADERBOARD = [
-    { id: 1, name: 'Minh Tuấn', points: 2450, avatar: 'https://i.pravatar.cc/150?img=12', rank: 1 },
-    { id: 2, name: 'Alex (Bạn)', points: 2100, avatar: 'https://i.pravatar.cc/150?img=11', rank: 2 },
-    { id: 3, name: 'Thảo Vy', points: 1850, avatar: 'https://i.pravatar.cc/150?img=5', rank: 3 },
+    { id: '1', rank: 1, name: 'Eiden', score: 2430, avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=2000', isCurrentUser: false },
+    { id: '2', rank: 2, name: 'Jackson', score: 1847, avatar: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=1974', isCurrentUser: false },
+    { id: '3', rank: 3, name: 'Emma', score: 1674, avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1974', isCurrentUser: false },
+    { id: '6', rank: 6, name: 'You', score: 1021, avatar: 'https://lol-skin.weblog.vc/img/wallpaper/tiles/Teemo_0.jpg?1773887081', isCurrentUser: true },
   ];
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingBottom: insets.bottom }]}>
+
       {/* --- HEADER --- */}
       <View style={[styles.header, { paddingTop: Math.max(insets.top, 20) }]}>
         <TouchableOpacity onPress={() => router.back()} style={styles.headerSideButton}>
@@ -76,11 +75,11 @@ export default function EnhancedDashboardScreen() {
         <View style={styles.headerSideButton} />
       </View>
 
-      <ScrollView 
-        showsVerticalScrollIndicator={false} 
-        contentContainerStyle={{ paddingBottom: Math.max(insets.bottom, 20) }}
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 40 }}
       >
-        
+
         {/* --- STATS CARDS --- */}
         <View style={styles.cardsRow}>
           <TouchableOpacity style={[styles.card, styles.streakCard]}>
@@ -94,7 +93,7 @@ export default function EnhancedDashboardScreen() {
             <Text style={styles.streakLabel}>NGÀY LIÊN TIẾP</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.card, styles.reviewCard]}
             activeOpacity={0.8}
             onPress={() => router.push('/review')}
@@ -111,9 +110,6 @@ export default function EnhancedDashboardScreen() {
         <View style={styles.sectionContainer}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Biểu đồ học tập</Text>
-            {/* <TouchableOpacity>
-              <Text style={styles.seeAllText}>Chi tiết</Text>
-            </TouchableOpacity> */}
           </View>
           <View style={styles.chartCard}>
             <View style={styles.chartSummary}>
@@ -123,7 +119,7 @@ export default function EnhancedDashboardScreen() {
 
             <View style={styles.chartSection}>
               {CHART_DATA.map((item, index) => {
-                const MAX_WORDS = 20; // Giả định số từ tối đa là 20 để tính tỷ lệ %
+                const MAX_WORDS = 20;
                 const percent = Math.min((item.words / MAX_WORDS) * 100, 100);
                 const barColor = item.active ? colors.primary : (item.words > 0 ? colors.border : 'transparent');
 
@@ -132,13 +128,13 @@ export default function EnhancedDashboardScreen() {
                     <Text style={[styles.chartWords, item.active && { color: colors.primary, fontWeight: '800' }]}>
                       {item.words > 0 ? item.words : ''}
                     </Text>
-                    
+
                     <View style={styles.chartBarBackground}>
-                      <View 
+                      <View
                         style={[
-                          styles.chartBarFill, 
+                          styles.chartBarFill,
                           { height: `${percent}%`, backgroundColor: barColor }
-                        ]} 
+                        ]}
                       />
                     </View>
 
@@ -162,8 +158,8 @@ export default function EnhancedDashboardScreen() {
               <Text style={styles.seeAllText}>Xem tất cả</Text>
             </TouchableOpacity>
           </View>
-          
-          <TouchableOpacity 
+
+          <TouchableOpacity
             style={[styles.tasksCard, { marginBottom: 16 }]}
             onPress={() => router.push('/tasks')}
           >
@@ -173,7 +169,7 @@ export default function EnhancedDashboardScreen() {
             </View>
             <View style={styles.tasksInfo}>
               <Text style={styles.tasksDescription}>
-                {completedTasks === totalTasks 
+                {completedTasks === totalTasks
                   ? 'Tuyệt vời! Bạn đã hoàn thành tất cả nhiệm vụ hôm nay.'
                   : `Chỉ còn ${totalTasks - completedTasks} nhiệm vụ nữa là hoàn thành mục tiêu hôm nay!`}
               </Text>
@@ -189,10 +185,9 @@ export default function EnhancedDashboardScreen() {
           {top2Tasks.map((task, index) => {
             const IconComp = IconMap[task.icon] || BookOpen;
             const percent = Math.min((task.progress / task.target) * 100, 100);
-            const isCompleted = task.status === 'claimed' || task.progress >= task.target;
             const bgColors = [colors.surfaceBlue, colors.surfaceYellow, colors.surfacePink];
             const iconColors = [colors.secondary, colors.warning, colors.danger];
-            
+
             return (
               <TouchableOpacity key={task.id} style={styles.miniTaskCard} onPress={() => router.push('/tasks')}>
                 <View style={[styles.miniTaskIcon, { backgroundColor: bgColors[index % bgColors.length] }]}>
@@ -206,8 +201,8 @@ export default function EnhancedDashboardScreen() {
                 </View>
 
                 {task.status === 'claimable' ? (
-                  <TouchableOpacity 
-                    style={styles.miniTaskBtnClaimable} 
+                  <TouchableOpacity
+                    style={styles.miniTaskBtnClaimable}
                     onPress={() => claimReward(task.id, task.coinReward, 'daily')}
                   >
                     <Text style={styles.miniTaskTextClaimable}>Nhận quà</Text>
@@ -228,27 +223,36 @@ export default function EnhancedDashboardScreen() {
 
         {/* --- LEADERBOARD --- */}
         <View style={[styles.sectionContainer, { marginBottom: 40 }]}>
-            <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>Bảng xếp hạng</Text>
-                <TouchableOpacity>
-                <Text style={styles.seeAllText}>Xem tất cả</Text>
-                </TouchableOpacity>
-            </View>
-          {/* <Text style={styles.sectionTitle}>Bảng xếp hạng tuần</Text> */}
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Bảng xếp hạng</Text>
+            <TouchableOpacity onPress={() => router.push('/leaderboard')}>
+              <Text style={styles.seeAllText}>Xem tất cả</Text>
+            </TouchableOpacity>
+          </View>
           <View style={styles.leaderboardCard}>
-            {LEADERBOARD.map((user, index) => (
-              <View key={user.id} style={[styles.leaderboardRow, index !== LEADERBOARD.length - 1 && styles.borderBottom]}>
-                <Text style={[styles.rankText, user.rank === 1 && { color: colors.warning }]}>#{user.rank}</Text>
-                <Image source={{ uri: user.avatar }} style={styles.lbAvatar} />
-                <View style={styles.lbInfo}>
-                  <Text style={[styles.lbName, user.name.includes('(Bạn)') && { color: colors.secondary, fontWeight: '800' }]}>
-                    {user.name}
-                  </Text>
-                  <Text style={styles.lbPoints}>{user.points} XP</Text>
+            {LEADERBOARD.map((user, index) => {
+              const isMe = user.isCurrentUser;
+              return (
+                <View
+                  key={user.id}
+                  style={[
+                    styles.leaderboardRow,
+                    index !== LEADERBOARD.length - 1 && styles.borderBottom,
+                    isMe && { backgroundColor: colors.surfaceGreen, borderRadius: 16, paddingHorizontal: 12, marginHorizontal: -12 }
+                  ]}
+                >
+                  <Text style={[styles.rankText, user.rank === 1 && { color: colors.warning }]}>#{user.rank}</Text>
+                  <Image source={{ uri: user.avatar }} style={styles.lbAvatar} />
+                  <View style={styles.lbInfo}>
+                    <Text style={[styles.lbName, isMe && { color: colors.primary, fontWeight: '800' }]}>
+                      {user.name}
+                    </Text>
+                    <Text style={styles.lbPoints}>{user.score} từ</Text>
+                  </View>
+                  {user.rank === 1 && <Crown size={24} color={colors.warning} />}
                 </View>
-                {user.rank === 1 && <Crown size={24} color={colors.warning} />}
-              </View>
-            ))}
+              );
+            })}
           </View>
         </View>
 
@@ -257,7 +261,6 @@ export default function EnhancedDashboardScreen() {
   );
 }
 
-// --- DYNAMIC STYLES ---
 const getStyles = (colors: typeof Colors.light) => StyleSheet.create({
   container: {
     flex: 1,
@@ -285,6 +288,7 @@ const getStyles = (colors: typeof Colors.light) => StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     marginBottom: 40,
+    marginTop: 8,
   },
   card: {
     width: (width - 56) / 2,
@@ -462,7 +466,7 @@ const getStyles = (colors: typeof Colors.light) => StyleSheet.create({
     borderRadius: 38,
     borderWidth: 7,
     borderColor: colors.primary,
-    borderLeftColor: colors.border, 
+    borderLeftColor: colors.border,
     justifyContent: 'center',
     alignItems: 'center',
     transform: [{ rotate: '45deg' }],
