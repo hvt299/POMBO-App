@@ -12,10 +12,11 @@ import {
   useColorScheme
 } from 'react-native';
 // Thay thế toàn bộ bằng lucide-react-native
-import { Bell, Flame, Zap, MessageCircle, Laptop, Book, Crown, ChevronLeft } from 'lucide-react-native'; 
+import { Bell, Flame, Zap, Crown, ChevronLeft, BookOpen, Headphones, Target } from 'lucide-react-native'; 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Colors } from '../../src/constants/theme';
 import { Typography } from '@/components/ui/Typography';
+import { useTaskStore } from '../../src/store/useTaskStore';
 
 const { width } = Dimensions.get('window');
 
@@ -26,20 +27,35 @@ export default function EnhancedDashboardScreen() {
   const colors = Colors[colorScheme];
   const styles = useMemo(() => getStyles(colors), [colors]);
 
-  const CHART_DATA = [
-    { day: '1', words: 0, color: colors.danger },
-    { day: '2', words: 12, color: colors.warning, active: true },
-    { day: '3', words: 0, color: colors.primary },
-    { day: '4', words: 0, color: colors.secondary },
-    { day: '5', words: 0, color: colors.rankMaster },
-  ];
+  const { tasks, claimReward } = useTaskStore();
+  const completedTasks = tasks.filter(t => t.status === 'claimed' || t.progress >= t.target).length;
+  const totalTasks = tasks.length;
+  const top2Tasks = tasks.slice(0, 2); // Chỉ lấy 2 nhiệm vụ đầu tiên để hiển thị ngoài dashbord
 
-  // Truyền thẳng Component Icon của Lucide vào mảng
-  const NEXT_LESSONS = [
-    { id: 1, title: 'Giao tiếp cơ bản', progress: '80%', color: colors.secondary, bg: colors.surfaceBlue, icon: MessageCircle },
-    { id: 2, title: 'Từ vựng IT', progress: '30%', color: colors.rankMaster, bg: colors.surfacePurple, icon: Laptop },
-    { id: 3, title: 'Ngữ pháp Toeic', progress: '10%', color: colors.danger, bg: colors.surfacePink, icon: Book },
-  ];
+  const IconMap: Record<string, any> = {
+    BookOpen, Headphones, Flame, Target
+  };
+
+  const CHART_DATA = useMemo(() => {
+    const data = [];
+    const today = new Date();
+    // Số từ vựng học được giả lập cho 5 ngày gần nhất
+    const mockWords = [5, 15, 8, 4, 12]; 
+    
+    for (let i = 4; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(today.getDate() - i);
+      const dayOfWeek = d.getDay(); // 0 là Chủ nhật, 1 là T2,...
+      const dayStr = dayOfWeek === 0 ? 'CN' : `T${dayOfWeek + 1}`;
+      
+      data.push({
+        day: dayStr,
+        words: mockWords[4 - i],
+        active: i === 0 // Đánh dấu ngày hiện tại (i = 0 là hôm nay)
+      });
+    }
+    return data;
+  }, []);
 
   const LEADERBOARD = [
     { id: 1, name: 'Minh Tuấn', points: 2450, avatar: 'https://i.pravatar.cc/150?img=12', rank: 1 },
@@ -49,22 +65,22 @@ export default function EnhancedDashboardScreen() {
 
   return (
     <View style={styles.container}>
+      {/* --- HEADER --- */}
+      <View style={[styles.header, { paddingTop: Math.max(insets.top, 20) }]}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.headerSideButton}>
+          <ChevronLeft size={28} color={colors.textPrimary} />
+        </TouchableOpacity>
+        <Typography variant="h2" color={colors.textPrimary} style={styles.headerTitle}>
+          Bảng điều khiển
+        </Typography>
+        <View style={styles.headerSideButton} />
+      </View>
+
       <ScrollView 
         showsVerticalScrollIndicator={false} 
         contentContainerStyle={{ paddingBottom: Math.max(insets.bottom, 20) }}
       >
         
-        {/* --- HEADER --- */}
-        <View style={[styles.header, { paddingTop: Math.max(insets.top, 20) }]}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.headerSideButton}>
-            <ChevronLeft size={28} color={colors.textPrimary} />
-          </TouchableOpacity>
-          <Typography variant="h2" color={colors.textPrimary} style={styles.headerTitle}>
-            Bảng điều khiển
-          </Typography>
-          <View style={styles.headerSideButton} />
-        </View>
-
         {/* --- STATS CARDS --- */}
         <View style={styles.cardsRow}>
           <TouchableOpacity style={[styles.card, styles.streakCard]}>
@@ -92,75 +108,122 @@ export default function EnhancedDashboardScreen() {
         </View>
 
         {/* --- LEARNING CHART --- */}
-        <View style={styles.chartContainer}>
-          <Text style={styles.sectionTitle}>Biểu đồ học tập</Text>
-          <View style={styles.chartSection}>
-            {CHART_DATA.map((item, index) => (
-              <View key={index} style={styles.chartColumn}>
-                <Text style={[styles.chartWords, item.active && { color: colors.warning, fontWeight: '800' }]}>
-                  {item.words} từ
-                </Text>
-                <View style={[
-                  styles.chartBar, 
-                  { height: item.active ? 90 : 8, backgroundColor: item.color }
-                ]} />
-                <Text style={[styles.chartDay, item.active && { color: colors.textPrimary, fontWeight: '800' }]}>
-                  {item.day}
-                </Text>
-              </View>
-            ))}
+        <View style={styles.sectionContainer}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Biểu đồ học tập</Text>
+            {/* <TouchableOpacity>
+              <Text style={styles.seeAllText}>Chi tiết</Text>
+            </TouchableOpacity> */}
+          </View>
+          <View style={styles.chartCard}>
+            <View style={styles.chartSummary}>
+              <Text style={styles.chartSummaryNumber}>12</Text>
+              <Text style={styles.chartSummaryText}>từ đã học hôm nay!</Text>
+            </View>
+
+            <View style={styles.chartSection}>
+              {CHART_DATA.map((item, index) => {
+                const MAX_WORDS = 20; // Giả định số từ tối đa là 20 để tính tỷ lệ %
+                const percent = Math.min((item.words / MAX_WORDS) * 100, 100);
+                const barColor = item.active ? colors.primary : (item.words > 0 ? colors.border : 'transparent');
+
+                return (
+                  <View key={index} style={styles.chartColumn}>
+                    <Text style={[styles.chartWords, item.active && { color: colors.primary, fontWeight: '800' }]}>
+                      {item.words > 0 ? item.words : ''}
+                    </Text>
+                    
+                    <View style={styles.chartBarBackground}>
+                      <View 
+                        style={[
+                          styles.chartBarFill, 
+                          { height: `${percent}%`, backgroundColor: barColor }
+                        ]} 
+                      />
+                    </View>
+
+                    <View style={[styles.chartDayPill, item.active && { backgroundColor: colors.primary }]}>
+                      <Text style={[styles.chartDay, item.active && { color: colors.textOnAction, fontWeight: '800' }]}>
+                        {item.day}
+                      </Text>
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
           </View>
         </View>
 
         {/* --- DAILY TASKS --- */}
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Nhiệm vụ hằng ngày</Text>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Nhiệm vụ hằng ngày</Text>
+            <TouchableOpacity onPress={() => router.push('/tasks')}>
+              <Text style={styles.seeAllText}>Xem tất cả</Text>
+            </TouchableOpacity>
+          </View>
+          
           <TouchableOpacity 
-            style={styles.tasksCard}
+            style={[styles.tasksCard, { marginBottom: 16 }]}
             onPress={() => router.push('/tasks')}
           >
             <View style={styles.circularProgress}>
-              <Text style={styles.progressTextMain}>15/20</Text>
+              <Text style={styles.progressTextMain}>{completedTasks}/{totalTasks}</Text>
               <Text style={styles.progressTextSub}>NV</Text>
             </View>
             <View style={styles.tasksInfo}>
               <Text style={styles.tasksDescription}>
-                Chỉ còn 5 nhiệm vụ nữa thôi là bạn sẽ hoàn thành mục tiêu hôm nay! Cố lên nhé!
+                {completedTasks === totalTasks 
+                  ? 'Tuyệt vời! Bạn đã hoàn thành tất cả nhiệm vụ hôm nay.'
+                  : `Chỉ còn ${totalTasks - completedTasks} nhiệm vụ nữa là hoàn thành mục tiêu hôm nay!`}
               </Text>
               <View style={styles.progressSteps}>
-                {[1, 2, 3, 4, 5].map((step) => (
-                  <View key={step} style={[styles.stepDot, step === 5 ? styles.stepDotInactive : styles.stepDotActive]} />
+                {Array.from({ length: totalTasks }).map((_, i) => (
+                  <View key={i} style={[styles.stepDot, i >= completedTasks ? styles.stepDotInactive : styles.stepDotActive]} />
                 ))}
               </View>
             </View>
           </TouchableOpacity>
-        </View>
 
-        {/* --- NEXT LESSONS --- */}
-        <View style={styles.sectionContainer}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Học tiếp nào</Text>
-            <TouchableOpacity>
-              <Text style={styles.seeAllText}>Xem tất cả</Text>
-            </TouchableOpacity>
-          </View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalScroll}>
-            {NEXT_LESSONS.map((lesson) => {
-              const IconComponent = lesson.icon; // Gán component ra biến để render
-              return (
-                <TouchableOpacity key={lesson.id} style={styles.lessonCard}>
-                  <View style={[styles.lessonIconWrap, { backgroundColor: lesson.bg }]}>
-                    <IconComponent size={24} color={lesson.color} />
+          {/* Mini Tasks List */}
+          {top2Tasks.map((task, index) => {
+            const IconComp = IconMap[task.icon] || BookOpen;
+            const percent = Math.min((task.progress / task.target) * 100, 100);
+            const isCompleted = task.status === 'claimed' || task.progress >= task.target;
+            const bgColors = [colors.surfaceBlue, colors.surfaceYellow, colors.surfacePink];
+            const iconColors = [colors.secondary, colors.warning, colors.danger];
+            
+            return (
+              <TouchableOpacity key={task.id} style={styles.miniTaskCard} onPress={() => router.push('/tasks')}>
+                <View style={[styles.miniTaskIcon, { backgroundColor: bgColors[index % bgColors.length] }]}>
+                  <IconComp size={20} color={iconColors[index % iconColors.length]} />
+                </View>
+                <View style={styles.miniTaskInfo}>
+                  <Text style={styles.miniTaskTitle}>{task.title}</Text>
+                  <View style={styles.progressBarBg}>
+                    <View style={[styles.progressBarFill, { width: `${percent}%`, backgroundColor: task.status === 'claimed' ? colors.border : colors.primary }]} />
                   </View>
-                  <Text style={styles.lessonTitle}>{lesson.title}</Text>
-                  <View style={styles.lessonProgressBar}>
-                    <View style={[styles.lessonProgressFill, { width: lesson.progress as DimensionValue, backgroundColor: lesson.color }]} />
+                </View>
+
+                {task.status === 'claimable' ? (
+                  <TouchableOpacity 
+                    style={styles.miniTaskBtnClaimable} 
+                    onPress={() => claimReward(task.id, task.coinReward, 'daily')}
+                  >
+                    <Text style={styles.miniTaskTextClaimable}>Nhận quà</Text>
+                  </TouchableOpacity>
+                ) : task.status === 'claimed' ? (
+                  <View style={styles.miniTaskBtnClaimed}>
+                    <Text style={styles.miniTaskTextClaimed}>Đã nhận</Text>
                   </View>
-                  <Text style={styles.lessonProgressText}>{lesson.progress} hoàn thành</Text>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
+                ) : (
+                  <View style={styles.miniTaskBtnProgress}>
+                    <Text style={styles.miniTaskTextProgress}>Tiến độ</Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            );
+          })}
         </View>
 
         {/* --- LEADERBOARD --- */}
@@ -204,10 +267,9 @@ const getStyles = (colors: typeof Colors.light) => StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingBottom: 16,
+    paddingBottom: 8,
     borderBottomWidth: 1,
     borderBottomColor: 'transparent',
-    marginBottom: 8,
   },
   headerSideButton: {
     width: 44,
@@ -310,34 +372,75 @@ const getStyles = (colors: typeof Colors.light) => StyleSheet.create({
     color: colors.secondary,
     marginBottom: 16,
   },
-  chartContainer: {
-    paddingHorizontal: 20,
-    marginBottom: 40,
+  chartCard: {
+    backgroundColor: colors.surface,
+    borderRadius: 24,
+    padding: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 3,
+  },
+  chartSummary: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    marginBottom: 24,
+  },
+  chartSummaryNumber: {
+    fontSize: 32,
+    fontWeight: '900',
+    color: colors.primary,
+    lineHeight: 36,
+    marginRight: 8,
+  },
+  chartSummaryText: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    fontWeight: '500',
+    paddingBottom: 4,
   },
   chartSection: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
-    height: 130,
-    paddingHorizontal: 8,
+    height: 160,
   },
   chartColumn: {
     alignItems: 'center',
     width: 44,
+    height: '100%',
+    justifyContent: 'flex-end',
   },
   chartWords: {
-    fontSize: 11,
+    fontSize: 12,
     color: colors.textSecondary,
-    fontWeight: '600',
-    marginBottom: 6,
+    fontWeight: '700',
+    marginBottom: 8,
+    height: 16,
   },
-  chartBar: {
-    width: 32,
+  chartBarBackground: {
+    width: 14,
+    flex: 1,
+    backgroundColor: colors.background,
     borderRadius: 8,
-    marginBottom: 10,
+    marginBottom: 12,
+    justifyContent: 'flex-end',
+    overflow: 'hidden',
+  },
+  chartBarFill: {
+    width: '100%',
+    borderRadius: 8,
+  },
+  chartDayPill: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   chartDay: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '600',
     color: colors.textSecondary,
   },
@@ -402,50 +505,85 @@ const getStyles = (colors: typeof Colors.light) => StyleSheet.create({
   stepDotInactive: {
     backgroundColor: colors.border,
   },
-  horizontalScroll: {
-    paddingRight: 20,
-    gap: 16,
-  },
-  lessonCard: {
-    width: 160,
+  miniTaskCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: colors.surface,
     borderRadius: 20,
-    padding: 16,
+    padding: 14,
+    marginBottom: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.04,
     shadowRadius: 8,
     elevation: 2,
   },
-  lessonIconWrap: {
-    width: 48,
-    height: 48,
-    borderRadius: 16,
+  miniTaskIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
+    marginRight: 14,
   },
-  lessonTitle: {
-    fontSize: 15,
+  miniTaskInfo: {
+    flex: 1,
+    marginRight: 12,
+  },
+  miniTaskTitle: {
+    fontSize: 14,
     fontWeight: '700',
     color: colors.textPrimary,
-    marginBottom: 12,
+    marginBottom: 8,
   },
-  lessonProgressBar: {
+  progressBarBg: {
     height: 6,
     backgroundColor: colors.border,
     borderRadius: 3,
-    marginBottom: 8,
+    width: '100%',
     overflow: 'hidden',
   },
-  lessonProgressFill: {
+  progressBarFill: {
     height: '100%',
     borderRadius: 3,
   },
-  lessonProgressText: {
+  miniTaskBtnClaimed: {
+    backgroundColor: colors.surfaceAlt,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 10,
+  },
+  miniTaskTextClaimed: {
     fontSize: 12,
-    color: colors.textSecondary,
-    fontWeight: '500',
+    fontWeight: '700',
+    color: colors.disabled,
+  },
+  miniTaskBtnClaimable: {
+    backgroundColor: colors.warning,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 10,
+    shadowColor: colors.warning,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  miniTaskTextClaimable: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: colors.textOnAction,
+  },
+  miniTaskBtnProgress: {
+    backgroundColor: colors.surfaceBlue,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 10,
+  },
+  miniTaskTextProgress: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: colors.secondary,
   },
   leaderboardCard: {
     backgroundColor: colors.surface,

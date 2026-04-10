@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, ScrollView, useColorScheme, Dimensions } from 'react-native';
-import { useRouter } from 'expo-router';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, TouchableOpacity, ScrollView, useColorScheme, Dimensions, Modal } from 'react-native';
+import { useRouter, useNavigation } from 'expo-router';
 import { Typography } from '@/components/ui/Typography';
 import { Colors } from '@/constants/theme';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -55,6 +55,7 @@ const MOCK_QUESTIONS: Question[] = [
 
 export default function ReviewScreen() {
     const router = useRouter();
+    const navigation = useNavigation();
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
     const insets = useSafeAreaInsets();
@@ -67,6 +68,41 @@ export default function ReviewScreen() {
     // Thêm state quản lý hoàn thành và điểm số
     const [isFinished, setIsFinished] = useState(false);
     const [score, setScore] = useState(0);
+
+    const [showExitConfirm, setShowExitConfirm] = useState(false);
+    const [exitAction, setExitAction] = useState<any>(null);
+
+    // Xác nhận thoát khi chưa làm xong
+    useEffect(() => {
+        const unsub = navigation.addListener('beforeRemove', (e) => {
+            if (isFinished || exitAction) {
+                // Đã hoàn thành hoặc đã xác nhận thoát, cho phép thoát bình thường
+                return;
+            }
+            
+            // Ngăn việc thoát ngay lập tức
+            e.preventDefault();
+
+            setExitAction(e.data.action);
+            setShowExitConfirm(true);
+        });
+
+        return unsub;
+    }, [navigation, isFinished, exitAction]);
+
+    const handleConfirmExit = () => {
+        setShowExitConfirm(false);
+        if (exitAction) {
+            navigation.dispatch(exitAction);
+        } else {
+            router.back();
+        }
+    };
+
+    const handleCancelExit = () => {
+        setShowExitConfirm(false);
+        setExitAction(null);
+    };
 
     const question = MOCK_QUESTIONS[currentIdx];
     const totalQuestions = MOCK_QUESTIONS.length;
@@ -291,6 +327,45 @@ export default function ReviewScreen() {
                     />
                 </View>
             )}
+
+            <Modal
+                transparent={true}
+                visible={showExitConfirm}
+                animationType="fade"
+                onRequestClose={handleCancelExit}
+            >
+                <View style={[styles.modalOverlay, { backgroundColor: colorScheme === 'dark' ? 'rgba(0, 0, 0, 0.7)' : 'rgba(0, 0, 0, 0.5)' }]}>
+                    <View style={[styles.modalContent, { backgroundColor: colors.surface }]}>
+                        <View style={[styles.modalIconWrapper, { backgroundColor: colors.surfacePink }]}>
+                            <Icon name="AlertTriangle" size={32} color={colors.danger} />
+                        </View>
+                        <Typography variant="h2" color={colors.textPrimary} style={{ textAlign: 'center', marginBottom: 12 }}>
+                            Xác nhận thoát
+                        </Typography>
+                        <Typography variant="bodyBase" color={colors.textSecondary} style={{ textAlign: 'center', marginBottom: 24 }}>
+                            Bạn có chắc chắn muốn thoát? Kết quả ôn tập sẽ không được lưu.
+                        </Typography>
+                        <View style={styles.modalActions}>
+                            <TouchableOpacity 
+                                style={[styles.modalButtonBase, styles.modalButtonCancel, { borderColor: colors.border }]}
+                                onPress={handleCancelExit}
+                            >
+                                <Typography variant="buttonCTA" color={colors.textPrimary}>
+                                    Huỷ
+                                </Typography>
+                            </TouchableOpacity>
+                            <TouchableOpacity 
+                                style={[styles.modalButtonBase, styles.modalButtonConfirm, { backgroundColor: colors.danger }]}
+                                onPress={handleConfirmExit}
+                            >
+                                <Typography variant="buttonCTA" color={'#FFFFFF'}>
+                                    Thoát
+                                </Typography>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
         </View>
     );
 }
@@ -439,5 +514,51 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         alignItems: 'center',
         gap: 8,
+    },
+    
+    // --- Style mới cho giao diện Modal ---
+    modalOverlay: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 24,
+    },
+    modalContent: {
+        width: '100%',
+        borderRadius: 24,
+        padding: 24,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 12,
+        elevation: 8,
+    },
+    modalIconWrapper: {
+        width: 64,
+        height: 64,
+        borderRadius: 32,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 16,
+    },
+    modalActions: {
+        flexDirection: 'row',
+        gap: 12,
+        width: '100%',
+    },
+    modalButtonBase: {
+        flex: 1,
+        height: 48,
+        borderRadius: 24,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    modalButtonCancel: {
+        borderWidth: 1,
+        backgroundColor: 'transparent',
+    },
+    modalButtonConfirm: {
+        // backgroundColor is handled via inline style
     },
 });

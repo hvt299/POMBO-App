@@ -97,7 +97,8 @@ export default function CourseShopDetailScreen() {
         setShowSuccessModal(false);
         modalOpacity.value = 0;
         modalScale.value = 0;
-        router.push({ pathname: '/(courses)/course-detail', params: { id: 'ongoing-1' } } as any);
+        // Navigate to the "new-words" screen after successful purchase
+        router.push({ pathname: '/(screens)/new-words' } as any);
     };
 
     const animatedModalStyle = useAnimatedStyle(() => ({
