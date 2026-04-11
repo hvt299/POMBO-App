@@ -12,7 +12,7 @@ import {
   Animated,
   ScrollView,
 } from 'react-native';
-import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
+import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { useRouter, useNavigation } from 'expo-router';
 import { Typography } from '@/components/ui/Typography';
 import { Colors } from '@/constants/theme';
@@ -120,6 +120,16 @@ const shuffleArray = <T,>(array: T[]): T[] => {
     [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
   }
   return newArray;
+};
+
+const FlipCardIcon = ({ color }: { color: string }) => {
+  return (
+    <View style={[styles.flipIconFrame, { borderColor: color }]}>
+      <View style={[styles.flipIconLeftArc, { borderColor: color }]} />
+      <View style={[styles.flipIconRightArc, { borderColor: color }]} />
+      <View style={[styles.flipIconDivider, { backgroundColor: color }]} />
+    </View>
+  );
 };
 
 export default function LearnNewWordScreen() {
@@ -243,54 +253,56 @@ export default function LearnNewWordScreen() {
 
   // Màn hình hoàn thành bài học (Hình 3)
   if (isCompleted) {
+    const completionBg = colorScheme === 'dark' ? colors.background : '#ECEEF1';
     return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        <StatusBar barStyle="dark-content" backgroundColor={colors.background} />
+      <View style={[styles.container, { backgroundColor: completionBg }]}>
+        <StatusBar barStyle="dark-content" backgroundColor={completionBg} />
         
-        <View style={styles.completionContent}>
-          {/* Icon cúp */}
-          <View style={styles.trophyContainer}>
-            <View style={[styles.trophyCircle, { backgroundColor: colors.surfaceGreen }]}>
-              <Ionicons name="trophy" size={80} color={colors.primary} />
-              <FontAwesome5 name="star" solid size={20} color={colors.warning} style={styles.star1} />
-              <FontAwesome5 name="star" solid size={16} color={colors.warning} style={styles.star2} />
-              <FontAwesome5 name="star" solid size={24} color={colors.warning} style={styles.star3} />
+        <View style={[
+          styles.completionContent,
+          {
+            paddingTop: Math.max(insets.top, 20),
+            paddingBottom: 190 + Math.max(insets.bottom, 18),
+          }
+        ]}>
+          <View style={styles.completionTopBlock}>
+            <View style={styles.trophyWrap}>
+              <View style={[styles.trophyCircle, { backgroundColor: colors.surfaceGreen }]}>
+                <Ionicons name="trophy" size={74} color={colors.primary} />
+                <FontAwesome5 name="star" solid size={14} color="#F2C94C" style={styles.star1} />
+                <FontAwesome5 name="star" solid size={18} color="#F2C94C" style={styles.star2} />
+                <FontAwesome5 name="star" solid size={12} color="#F2C94C" style={styles.star3} />
+              </View>
+            </View>
+
+            <Typography variant="h1" color={colors.textPrimary} style={styles.completionTitle}>
+              Chúc mừng bạn đã hoàn{'\n'}thành bài học!
+            </Typography>
+
+            <View style={[styles.pillContainer, { backgroundColor: '#BDEFCF' }]}>
+              <Ionicons name="checkmark-circle" size={20} color={colors.primary} />
+              <Typography variant="bodySmall" color={colors.primary} style={styles.pillText}>
+                10/10 từ mới đã học
+              </Typography>
             </View>
           </View>
 
-          <Typography variant="h2" color={colors.textPrimary} style={styles.completionTitle}>
-            Chúc mừng bạn đã hoàn{'\n'}thành bài học!
-          </Typography>
-
-          <View style={[styles.pillContainer, { backgroundColor: colors.surfaceGreen }]}>
-            <Ionicons name="checkmark-circle" size={20} color={colors.primary} />
-            <Typography variant="bodySmall" color={colors.primary} style={{ marginLeft: 6 }}>
-              10/10 từ mới đã học
-            </Typography>
-          </View>
-
-          {/* Placeholder cho Mascot con rồng */}
-          <Image
-            source={{ uri: 'https://cdn-icons-png.flaticon.com/512/3426/3426653.png' }}
-            style={styles.mascotImage}
-            resizeMode="contain"
-          />
         </View>
 
-        <View style={[styles.completionBottomArea, { backgroundColor: colors.surfaceGreen, paddingBottom: Math.max(insets.bottom, 20) }]}>
+        <View style={[styles.completionBottomArea, { backgroundColor: '#BDEFCF', paddingBottom: Math.max(insets.bottom, 18) }]}>
           <ButtonCTA 
             title="Học tiếp bài mới" 
             onPress={handleRestart} 
-            style={{ marginBottom: 12 }} 
+            style={styles.completionPrimaryBtn}
           />
           <TouchableOpacity 
-            style={[styles.outlineButtonBase, { borderColor: colors.border, backgroundColor: colors.surface }]}
+            style={[styles.outlineButtonBase, { borderColor: '#9AA6B2', backgroundColor: '#E9EDF2' }]}
             onPress={() => router.back()}
           >
             <Typography variant="buttonCTA" color={colors.textPrimary}>Về trang chủ</Typography>
           </TouchableOpacity>
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
@@ -356,7 +368,7 @@ export default function LearnNewWordScreen() {
             </TouchableOpacity>
 
             <TouchableOpacity style={[styles.cardActionButton, { borderColor: colors.textSecondary }]} onPress={flipCard}>
-              <MaterialCommunityIcons name="cards-playing-outline" size={20} color={colors.textPrimary} />
+              <FlipCardIcon color={colors.textPrimary} />
               <Typography variant="bodyBase" color={colors.textPrimary} style={{ marginLeft: 8 }}>Lật thẻ</Typography>
             </TouchableOpacity>
           </View>
@@ -406,7 +418,7 @@ export default function LearnNewWordScreen() {
             </TouchableOpacity>
 
             <TouchableOpacity style={[styles.cardActionButton, { borderColor: colors.textSecondary }]} onPress={flipCard}>
-              <MaterialCommunityIcons name="cards-playing-outline" size={20} color={colors.textPrimary} />
+              <FlipCardIcon color={colors.textPrimary} />
               <Typography variant="bodyBase" color={colors.textPrimary} style={{ marginLeft: 8 }}>Lật thẻ</Typography>
             </TouchableOpacity>
           </View>
@@ -425,8 +437,8 @@ export default function LearnNewWordScreen() {
       <Modal visible={showExitModal} transparent={true} animationType="fade" onRequestClose={handleCancelExit}>
         <View style={[styles.modalOverlay, { backgroundColor: colorScheme === 'dark' ? 'rgba(0,0,0,0.7)' : 'rgba(0,0,0,0.5)' }]}>
           <View style={[styles.modalContent, { backgroundColor: colors.surface }]}>
-            <View style={[styles.modalIconContainer, { backgroundColor: colors.surfacePink }]}>
-              <Icon name="AlertTriangle" size={32} color={colors.danger} />
+            <View style={[styles.modalIconContainer, styles.modalExitIconContainer, { backgroundColor: '#F2A9AE' }]}>
+              <Icon name="CircleX" size={40} color={'#8D404A'} strokeWidth={1.75} />
             </View>
             <Typography variant="h2" color={colors.textPrimary} style={styles.modalTitle}>Xác nhận thoát</Typography>
             <Typography variant="bodyBase" color={colors.textSecondary} style={styles.modalText}>
@@ -644,6 +656,41 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 24,
   },
+  flipIconFrame: {
+    width: 22,
+    height: 22,
+    borderWidth: 2,
+    borderRadius: 7,
+    position: 'relative',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  flipIconDivider: {
+    position: 'absolute',
+    width: 2,
+    height: 15,
+    borderRadius: 1,
+  },
+  flipIconLeftArc: {
+    position: 'absolute',
+    left: 2,
+    width: 7,
+    height: 14,
+    borderWidth: 2,
+    borderRightWidth: 0,
+    borderTopLeftRadius: 7,
+    borderBottomLeftRadius: 7,
+  },
+  flipIconRightArc: {
+    position: 'absolute',
+    right: 2,
+    width: 7,
+    height: 14,
+    borderWidth: 2,
+    borderLeftWidth: 0,
+    borderTopRightRadius: 7,
+    borderBottomRightRadius: 7,
+  },
   // Bottom Area
   bottomArea: {
     paddingHorizontal: 20,
@@ -677,6 +724,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
+  },
+  modalExitIconContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
   },
   modalTitle: {
     color: Colors.light.textPrimary,
@@ -713,53 +765,74 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 20,
+    paddingTop: 0,
+    paddingBottom: 0,
   },
-  trophyContainer: {
-    marginBottom: 24,
+  completionTopBlock: {
+    alignItems: 'center',
+  },
+  trophyWrap: {
+    marginBottom: 14,
   },
   trophyCircle: {
-    width: 140,
-    height: 140,
-    borderRadius: 70,
+    width: 124,
+    height: 124,
+    borderRadius: 62,
     backgroundColor: Colors.light.surfaceGreen,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  star1: { position: 'absolute', top: 10, left: 20 },
-  star2: { position: 'absolute', bottom: 20, left: 15 },
-  star3: { position: 'absolute', bottom: 10, right: 20 },
+  star1: { position: 'absolute', top: 8, right: 20 },
+  star2: { position: 'absolute', top: 72, left: -4 },
+  star3: { position: 'absolute', bottom: 12, right: 8 },
   completionTitle: {
     textAlign: 'center',
     color: Colors.light.textPrimary,
-    marginBottom: 16,
+    marginBottom: 10,
+    fontSize: 24,
+    lineHeight: 32,
   },
   pillContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.light.surfaceGreen,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    marginBottom: 32,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: 18,
+    marginBottom: 16,
   },
-  mascotImage: {
-    width: 120,
-    height: 120,
+  pillText: {
+    marginLeft: 6,
+    fontFamily: 'BeVietnamPro-Bold',
   },
   completionBottomArea: {
     backgroundColor: Colors.light.surfaceGreen,
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
     paddingHorizontal: 20,
-    paddingTop: 24,
+    paddingTop: 30,
     paddingBottom: 32,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+  },
+  completionPrimaryBtn: {
+    marginBottom: 12,
+    height: 52,
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.14,
+    shadowRadius: 5,
+    elevation: 4,
   },
   outlineButtonBase: {
     borderWidth: 1,
     borderColor: Colors.light.border,
     backgroundColor: Colors.light.surface,
-    borderRadius: 12,
-    paddingVertical: 16,
+    borderRadius: 10,
+    paddingVertical: 14,
     alignItems: 'center',
   },
 });

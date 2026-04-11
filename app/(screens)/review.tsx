@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, TouchableOpacity, ScrollView, useColorScheme, Dimensions, Modal } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, ScrollView, useColorScheme, Modal, Image } from 'react-native';
 import { useRouter, useNavigation } from 'expo-router';
 import { Typography } from '@/components/ui/Typography';
 import { Colors } from '@/constants/theme';
@@ -59,7 +59,6 @@ export default function ReviewScreen() {
     const colorScheme = useColorScheme() ?? 'light';
     const colors = Colors[colorScheme];
     const insets = useSafeAreaInsets();
-    const { width } = Dimensions.get('window');
 
     const [currentIdx, setCurrentIdx] = useState(0);
     const [selectedOption, setSelectedOption] = useState<string | null>(null);
@@ -107,6 +106,10 @@ export default function ReviewScreen() {
     const question = MOCK_QUESTIONS[currentIdx];
     const totalQuestions = MOCK_QUESTIONS.length;
     const progress = ((currentIdx + 1) / totalQuestions) * 100;
+    const accuracy = Math.round((score / Math.max(totalQuestions * 5, 1)) * 100);
+    const completedWords = totalQuestions * 10;
+    const currentStreak = 8;
+    const isLowAccuracy = accuracy < 50;
 
     const isCorrect = selectedOption === question?.correctAnswerId;
 
@@ -155,35 +158,85 @@ export default function ReviewScreen() {
     // --- GIAO DIỆN HOÀN THÀNH ---
     if (isFinished) {
         return (
-            <View style={[styles.completionContainer, { backgroundColor: colors.background, paddingTop: Math.max(insets.top, 20) }]}>
+            <View style={[
+                styles.completionContainer,
+                {
+                    backgroundColor: colorScheme === 'dark' ? colors.background : (isLowAccuracy ? '#F2EABF' : '#C7ECD7'),
+                    paddingTop: Math.max(insets.top, 20)
+                }
+            ]}>
                 <View style={styles.completionContent}>
-                    <View style={[styles.trophyBadge, { backgroundColor: colors.surfaceGreen }]}>
-                        {/* Có thể thay 'Star' bằng 'Award' hoặc icon phù hợp trong thư viện của bạn */}
-                        <Icon name="Star" size={64} color={colors.primary} />
-                    </View>
+                    <Image
+                        source={require('@/assets/images/dragon-nobg.png')}
+                        style={styles.completionMascot}
+                        resizeMode="contain"
+                    />
                     
-                    <Typography variant="h1" color={colors.primary} style={{ textAlign: 'center', marginBottom: 12, fontSize: 32 }}>
-                        Tuyệt vời!
+                    <Typography variant="h1" color={colors.textPrimary} style={styles.completionTitle}>
+                        {isLowAccuracy ? 'Đừng nản lòng' : 'Chúc mừng!'}
                     </Typography>
                     
-                    <Typography variant="bodyBase" color={colors.textSecondary} style={{ textAlign: 'center', marginBottom: 40 }}>
-                        Bạn đã hoàn thành xuất sắc bài ôn tập hôm nay.
+                    <Typography variant="bodyBase" color={colors.textSecondary} style={styles.completionSubtitle}>
+                        {isLowAccuracy
+                            ? 'Bạn chỉ còn một chút nữa thôi.'
+                            : 'Bạn đã hoàn thành xuất sắc mục tiêu hôm nay.'}
                     </Typography>
 
-                    <View style={[styles.scoreCard, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                        <Typography variant="bodyBase" color={colors.textSecondary} style={{ fontFamily: 'Baloo2-Bold' }}>
-                            TỔNG ĐIỂM
-                        </Typography>
-                        <Typography variant="display" color={colors.primary} style={{ fontSize: 48 }}>
-                            {score}
-                        </Typography>
+                    <View style={[styles.summaryMainCard, { backgroundColor: colors.surface }]}>
+                        <View style={[styles.summaryIcon, { backgroundColor: isLowAccuracy ? '#EF4444' : colors.primary }]}>
+                            <Icon name="BookText" size={18} color={colors.textOnAction} />
+                        </View>
+                        <View>
+                            <Typography variant="bodySmall" color={colors.textSecondary}>
+                                Từ vựng
+                            </Typography>
+                            <Typography variant="h3" color={colors.textPrimary} style={styles.summaryMainValue}>
+                                {completedWords} từ đã hoàn thành
+                            </Typography>
+                        </View>
                     </View>
+
+                    <View style={styles.summaryRow}>
+                        <View style={[styles.summaryMiniCard, { backgroundColor: colors.surface }]}>
+                            <View style={[styles.summaryMiniIcon, { backgroundColor: isLowAccuracy ? '#EF4444' : colors.primary }]}>
+                                <Icon name="Check" size={16} color={colors.textOnAction} />
+                            </View>
+                            <Typography variant="bodySmall" color={colors.textSecondary} style={styles.summaryLabel}>
+                                Độ chính xác
+                            </Typography>
+                            <Typography variant="h2" color={colors.textPrimary} style={styles.summaryMiniValue}>
+                                {accuracy}%
+                            </Typography>
+                        </View>
+
+                        <View style={[styles.summaryMiniCard, { backgroundColor: colors.surface }]}>
+                            <View style={[
+                                styles.summaryMiniIcon,
+                                {
+                                    backgroundColor: colorScheme === 'dark' ? colors.surfaceGreen : '#E9FBF0'
+                                }
+                            ]}>
+                                <Icon name="Flame" size={16} color={colors.primary} />
+                            </View>
+                            <Typography variant="bodySmall" color={colors.textSecondary} style={styles.summaryLabel}>
+                                Streak
+                            </Typography>
+                            <Typography variant="h2" color={colors.textPrimary} style={styles.summaryMiniValue}>
+                                {currentStreak} ngày
+                            </Typography>
+                        </View>
+                    </View>
+
+                    {/* <Typography variant="caption" color={colors.textSecondary} style={styles.scoreHint}>
+                        Điểm thưởng: {score}
+                    </Typography> */}
                 </View>
 
-                <View style={[styles.bottomContainer, { paddingBottom: Math.max(insets.bottom, 20) }]}>
+                <View style={[styles.bottomContainer, { paddingBottom: Math.max(insets.bottom, 12) }]}>
                     <ButtonCTA
-                        title="Trở về ngay"
+                        title="Quay về"
                         onPress={() => router.back()}
+                        style={styles.completionButton}
                     />
                 </View>
             </View>
@@ -336,8 +389,8 @@ export default function ReviewScreen() {
             >
                 <View style={[styles.modalOverlay, { backgroundColor: colorScheme === 'dark' ? 'rgba(0, 0, 0, 0.7)' : 'rgba(0, 0, 0, 0.5)' }]}>
                     <View style={[styles.modalContent, { backgroundColor: colors.surface }]}>
-                        <View style={[styles.modalIconWrapper, { backgroundColor: colors.surfacePink }]}>
-                            <Icon name="AlertTriangle" size={32} color={colors.danger} />
+                        <View style={[styles.modalIconWrapper, { backgroundColor: '#F2A9AE' }]}>
+                            <Icon name="CircleX" size={40} color={'#8D404A'} strokeWidth={1.75} />
                         </View>
                         <Typography variant="h2" color={colors.textPrimary} style={{ textAlign: 'center', marginBottom: 12 }}>
                             Xác nhận thoát
@@ -495,25 +548,100 @@ const styles = StyleSheet.create({
     },
     completionContent: {
         flex: 1,
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
         alignItems: 'center',
         paddingHorizontal: 24,
+        paddingTop: 54,
     },
-    trophyBadge: {
-        width: 120,
-        height: 120,
-        borderRadius: 60,
+    completionMascot: {
+        width: 200,
+        height: 200,
+        marginBottom: 18,
+    },
+    completionTitle: {
+        textAlign: 'center',
+        marginBottom: 8,
+        fontSize: 42,
+        lineHeight: 48,
+    },
+    completionSubtitle: {
+        textAlign: 'center',
+        marginBottom: 20,
+        fontSize: 20,
+        lineHeight: 26,
+    },
+    summaryMainCard: {
+        width: '100%',
+        borderRadius: 16,
+        paddingVertical: 16,
+        paddingHorizontal: 14,
+        marginBottom: 20,
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.08,
+        shadowRadius: 8,
+        elevation: 3,
+    },
+    summaryIcon: {
+        width: 34,
+        height: 34,
+        borderRadius: 17,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 32,
     },
-    scoreCard: {
+    summaryMainValue: {
+        fontSize: 28,
+        lineHeight: 34,
+    },
+    summaryRow: {
         width: '100%',
-        padding: 24,
-        borderRadius: 24,
-        borderWidth: 1,
+        flexDirection: 'row',
+        gap: 14,
+    },
+    summaryMiniCard: {
+        flex: 1,
+        borderRadius: 14,
+        paddingHorizontal: 12,
+        paddingVertical: 14,
+        minHeight: 120,
+        justifyContent: 'flex-start',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.08,
+        shadowRadius: 8,
+        elevation: 3,
+    },
+    summaryMiniIcon: {
+        width: 30,
+        height: 30,
+        borderRadius: 15,
+        justifyContent: 'center',
         alignItems: 'center',
-        gap: 8,
+        marginBottom: 10,
+    },
+    summaryLabel: {
+        marginBottom: 6,
+        fontSize: 15,
+    },
+    summaryMiniValue: {
+        fontSize: 36,
+        lineHeight: 42,
+    },
+    scoreHint: {
+        marginTop: 14,
+        opacity: 0.9,
+    },
+    completionButton: {
+        borderRadius: 10,
+        height: 52,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.16,
+        shadowRadius: 5,
+        elevation: 4,
     },
     
     // --- Style mới cho giao diện Modal ---
